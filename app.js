@@ -1,4 +1,6 @@
 const platformButtons = document.querySelectorAll('.platform-btn');
+const navButtons = document.querySelectorAll('.nav-btn');
+const platformPageButtons = document.querySelectorAll('.platform-page-btn');
 const kpiCards = document.getElementById('kpiCards');
 const campaignTable = document.getElementById('campaignTable');
 const insightsList = document.getElementById('insightsList');
@@ -8,13 +10,18 @@ const fileStatus = document.getElementById('fileStatus');
 const periodButtons = document.querySelectorAll('.period-btn');
 const startDateInput = document.getElementById('startDate');
 const endDateInput = document.getElementById('endDate');
+const pageEyebrow = document.getElementById('pageEyebrow');
+const pageTitle = document.getElementById('pageTitle');
+const pageDesc = document.getElementById('pageDesc');
 
 let rawData = [];
 let activePlatform = 'all';
+let activePage = 'dashboard';
 let activePeriod = null;
 let revenueChart;
 let performanceChart;
 const pieCharts = [];
+const timeSeriesCharts = [];
 
 const fieldMap = {
   date: ['data', 'date', 'periodo', 'dia', 'timestamp'],
@@ -312,6 +319,251 @@ function ensureCharts() {
   if (performanceChart) performanceChart.destroy();
 }
 
+function groupByDate(platform = 'all') {
+  const filtered = getFilteredRows(platform);
+  const groupedByDate = {};
+  
+  filtered.forEach((item) => {
+    const dateStr = item.date instanceof Date ? formatAsDateValue(item.date) : item.date;
+    if (!groupedByDate[dateStr]) {
+      groupedByDate[dateStr] = [];
+    }
+    groupedByDate[dateStr].push(item);
+  });
+  
+  return Object.keys(groupedByDate)
+    .sort()
+    .map((date) => {
+      const dayData = groupedByDate[date];
+      const totals = dayData.reduce((acc, item) => ({
+        date: item.date,
+        cost: acc.cost + item.cost,
+        impressions: acc.impressions + item.impressions,
+        clicks: acc.clicks + item.clicks,
+        videoViews: acc.videoViews + item.videoViews,
+        completeViews: acc.completeViews + item.completeViews
+      }), { date: dayData[0]?.date, cost: 0, impressions: 0, clicks: 0, videoViews: 0, completeViews: 0 });
+      
+      return {
+        date,
+        ...totals,
+        cpm: totals.impressions ? totals.cost / (totals.impressions / 1000) : 0,
+        cpc: totals.clicks ? totals.cost / totals.clicks : 0,
+        cpv: totals.videoViews ? totals.cost / totals.videoViews : 0,
+        ctr: totals.impressions ? totals.clicks / totals.impressions : 0,
+        vtr: totals.impressions ? totals.videoViews / totals.impressions : 0
+      };
+    });
+}
+
+function renderDailyPage() {
+  const dailyData = groupByDate(activePlatform);
+  if (!dailyData.length) {
+    document.getElementById('dailyKpiCards').innerHTML = '<p>Nenhum dado disponível</p>';
+    return;
+  }
+  
+  const latest = dailyData[dailyData.length - 1];
+  const cards = [
+    { label: 'Investimento', value: formatCurrency(latest.cost) },
+    { label: 'Impressões', value: latest.impressions.toLocaleString('pt-BR') },
+    { label: 'Cliques', value: latest.clicks.toLocaleString('pt-BR') },
+    { label: 'CPM', value: formatCurrency(latest.cpm) },
+    { label: 'CPC', value: formatCurrency(latest.cpc) },
+    { label: 'CTR', value: formatPercent(latest.ctr) }
+  ];
+  
+  const dailyKpiCards = document.getElementById('dailyKpiCards');
+  dailyKpiCards.innerHTML = cards.map((card) => `
+    <div class="kpi-card">
+      <p>${card.label}</p>
+      <strong>${card.value}</strong>
+    </div>
+  `).join('');
+  
+  // Render time series charts
+  renderTimeSeriesCharts(dailyData);
+}
+
+function renderTimeSeriesCharts(dailyData) {
+  const labels = dailyData.map((d) => d.date);
+  const barChartConfig = (canvasId, barData, lineData, barLabel, lineLabel, yAxisLabel) => {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+    
+    return new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: barLabel,
+            data: barData,
+            backgroundColor: 'rgba(65, 169, 255, 0.6)',
+            borderColor: 'rgba(65, 169, 255, 1)',
+            borderWidth: 0,
+            yAxisID: 'y',
+            order: 2
+          },
+          {
+            label: lineLabel,
+            data: lineData,
+            type: 'line',
+            borderColor: 'rgba(255, 107, 107, 1)',
+            borderWidth: 2.5,
+            borderDash: [5, 5],
+            fill: false,
+            yAxisID: 'y1',
+            order: 1,
+            pointRadius: 0,
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { intersect: false },
+        plugins: {
+          legend: { position: 'top', labels: { color: '#cbd4ef', usePointStyle: true } }
+        },
+        scales: {
+          y: { position: 'left', ticks: { color: '#8a9bc5' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+          y1: { position: 'right', ticks: { color: '#ff6b6b' }, grid: { drawOnChartArea: false } }
+        }
+      }
+    });
+  };
+  
+  const investmentChart = barChartConfig('investmentChart', dailyData.map((d) => d.cost), [], 'Investimento', '', 'Custo');
+  if (investmentChart) timeSeriesCharts.push(investmentChart);
+  
+  const impressionsCPMChart = barChartConfig('impressionsCPMChart', dailyData.map((d) => d.impressions), dailyData.map((d) => d.cpm), 'Impressões', 'CPM', 'Impressões');
+  if (impressionsCPMChart) timeSeriesCharts.push(impressionsCPMChart);
+  
+  const clicksCPCChart = barChartConfig('clicksCPCChart', dailyData.map((d) => d.clicks), dailyData.map((d) => d.cpc), 'Cliques', 'CPC', 'Cliques');
+  if (clicksCPCChart) timeSeriesCharts.push(clicksCPCChart);
+  
+  const viewsCPVChart = barChartConfig('viewsCPVChart', dailyData.map((d) => d.videoViews), dailyData.map((d) => d.cpv), 'Video Views', 'CPV', 'Views');
+  if (viewsCPVChart) timeSeriesCharts.push(viewsCPVChart);
+  
+  const ctrChart = barChartConfig('ctrChart', dailyData.map((d) => d.ctr * 100), [], 'CTR (%)', '', 'CTR');
+  if (ctrChart) timeSeriesCharts.push(ctrChart);
+  
+  const vtrChart = barChartConfig('vtrChart', dailyData.map((d) => d.vtr * 100), [], 'VTR (%)', '', 'VTR');
+  if (vtrChart) timeSeriesCharts.push(vtrChart);
+}
+
+function renderPlatformPage(page) {
+  const platformMap = { google: 'Google Ads', meta: 'Meta Ads', tiktok: 'TikTok Ads' };
+  const platform = platformMap[page];
+  const dailyData = groupByDate(platform);
+  
+  if (!dailyData.length) {
+    document.getElementById(`${page}KpiCards`).innerHTML = '<p>Nenhum dado disponível</p>';
+    return;
+  }
+  
+  // Render KPIs
+  const { totals } = aggregateAdvancedData(platform);
+  const cpm = totals.impressions ? totals.cost / (totals.impressions / 1000) : 0;
+  const cpc = totals.clicks ? totals.cost / totals.clicks : 0;
+  const ctr = totals.impressions ? totals.clicks / totals.impressions : 0;
+  
+  const cards = [
+    { label: 'Investimento', value: formatCurrency(totals.cost) },
+    { label: 'Impressões', value: totals.impressions.toLocaleString('pt-BR') },
+    { label: 'CPM', value: formatCurrency(cpm) },
+    { label: 'Cliques', value: totals.clicks.toLocaleString('pt-BR') },
+    { label: 'CPC', value: formatCurrency(cpc) },
+    { label: 'CTR', value: formatPercent(ctr) }
+  ];
+  
+  const kpiContainer = document.getElementById(`${page}KpiCards`);
+  kpiContainer.innerHTML = cards.map((card) => `
+    <div class="kpi-card">
+      <p>${card.label}</p>
+      <strong>${card.value}</strong>
+    </div>
+  `).join('');
+  
+  // Render time series charts
+  renderPlatformTimeSeriesCharts(page, dailyData);
+  
+  // Render summary table
+  const latest = dailyData[dailyData.length - 1];
+  const tableId = `${page}Table`;
+  document.getElementById(tableId).innerHTML = `
+    <tr>
+      <td>${formatCurrency(totals.cost)}</td>
+      <td>${totals.impressions.toLocaleString('pt-BR')}</td>
+      <td>${formatCurrency(cpm)}</td>
+      <td>${totals.clicks.toLocaleString('pt-BR')}</td>
+      <td>${formatCurrency(cpc)}</td>
+      ${page === 'tiktok' ? `<td>${totals.videoViews.toLocaleString('pt-BR')}</td><td>${formatPercent(totals.videoViews ? totals.videoViews / totals.impressions : 0)}</td>` : ''}
+    </tr>
+  `;
+}
+
+function renderPlatformTimeSeriesCharts(page, dailyData) {
+  const labels = dailyData.map((d) => d.date);
+  
+  const barChartConfig = (canvasId, barData, lineData, barLabel, lineLabel) => {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return null;
+    
+    return new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: barLabel,
+            data: barData,
+            backgroundColor: 'rgba(65, 169, 255, 0.6)',
+            borderWidth: 0,
+            yAxisID: 'y',
+            order: 2
+          },
+          {
+            label: lineLabel,
+            data: lineData,
+            type: 'line',
+            borderColor: 'rgba(255, 107, 107, 1)',
+            borderWidth: 2.5,
+            borderDash: [5, 5],
+            fill: false,
+            yAxisID: 'y1',
+            order: 1,
+            pointRadius: 0,
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { intersect: false },
+        plugins: { legend: { labels: { color: '#cbd4ef' } } },
+        scales: {
+          y: { ticks: { color: '#8a9bc5' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+          y1: { position: 'right', ticks: { color: '#ff6b6b' }, grid: { drawOnChartArea: false } }
+        }
+      }
+    });
+  };
+  
+  const investChart = barChartConfig(`${page}InvestmentChart`, dailyData.map((d) => d.cost), [], 'Investimento', '');
+  if (investChart) timeSeriesCharts.push(investChart);
+  
+  const impChart = barChartConfig(`${page}ImpressionsCPMChart`, dailyData.map((d) => d.impressions), dailyData.map((d) => d.cpm), 'Impressões', 'CPM');
+  if (impChart) timeSeriesCharts.push(impChart);
+  
+  const clickChart = barChartConfig(`${page}ClicksCPCChart`, dailyData.map((d) => d.clicks), dailyData.map((d) => d.cpc), 'Cliques', 'CPC');
+  if (clickChart) timeSeriesCharts.push(clickChart);
+  
+  const ctrChart = barChartConfig(`${page}CTRChart`, dailyData.map((d) => d.ctr * 100), [], 'CTR (%)', '');
+  if (ctrChart) timeSeriesCharts.push(ctrChart);
+}
+
 function renderKPIs() {
   const { totals, averageFrequency, totalVideoViews, totalCompleteViews, totalHigherReach } = aggregateAdvancedData(activePlatform);
   const cpm = totals.impressions ? totals.cost / (totals.impressions / 1000) : 0;
@@ -447,6 +699,65 @@ function clearPieCharts() {
   pieCharts.length = 0;
 }
 
+function clearTimeSeriesCharts() {
+  timeSeriesCharts.forEach((chart) => chart.destroy());
+  timeSeriesCharts.length = 0;
+}
+
+const pageConfig = {
+  dashboard: { title: 'Performance de Campanhas', eyebrow: 'Relatório Integrado', desc: 'Acompanhe investimento, receita, ROAS e conversão para as plataformas de advertising da JOVI.' },
+  daily: { title: 'Acompanhamento Diário', eyebrow: 'Série Temporal', desc: 'Acompanhe o desempenho dia a dia com gráficos de série temporal.' },
+  google: { title: 'Google Ads', eyebrow: 'Análise Isolada', desc: 'Dados consolidados apenas da plataforma Google Ads.' },
+  meta: { title: 'Meta Ads', eyebrow: 'Análise Isolada', desc: 'Dados consolidados apenas da plataforma Meta Ads (Facebook, Instagram).' },
+  tiktok: { title: 'TikTok Ads', eyebrow: 'Análise Isolada', desc: 'Dados consolidados apenas da plataforma TikTok Ads.' }
+};
+
+function changePage(newPage) {
+  activePage = newPage;
+  
+  // Hide all pages
+  document.querySelectorAll('.page-content').forEach((page) => {
+    page.style.display = 'none';
+  });
+  
+  // Show selected page
+  const targetPage = document.querySelector(`[data-page="${newPage}"]`);
+  if (targetPage) targetPage.style.display = 'flex';
+  
+  // Update topbar
+  const config = pageConfig[newPage];
+  pageEyebrow.textContent = config.eyebrow;
+  pageTitle.textContent = config.title;
+  pageDesc.textContent = config.desc;
+  
+  // Update nav buttons
+  navButtons.forEach((btn) => btn.classList.remove('active'));
+  document.querySelector(`.nav-btn[data-page="${newPage}"]`)?.classList.add('active');
+  
+  // Update platform buttons if on platform page
+  if (['google', 'meta', 'tiktok'].includes(newPage)) {
+    platformButtons.forEach((btn) => btn.classList.remove('active'));
+    const platformMap = { google: 'Google Ads', meta: 'Meta Ads', tiktok: 'TikTok Ads' };
+    document.querySelector(`[data-platform="${platformMap[newPage]}"]`)?.classList.add('active');
+    activePlatform = platformMap[newPage];
+  } else {
+    activePlatform = 'all';
+    document.querySelector('[data-platform="all"]')?.classList.add('active');
+  }
+  
+  // Render content for the page
+  clearTimeSeriesCharts();
+  clearPieCharts();
+  
+  if (newPage === 'dashboard') {
+    updateDashboard();
+  } else if (newPage === 'daily') {
+    renderDailyPage();
+  } else if (['google', 'meta', 'tiktok'].includes(newPage)) {
+    renderPlatformPage(newPage);
+  }
+}
+
 function updateDashboard() {
   renderKPIs();
   clearPieCharts();
@@ -547,6 +858,19 @@ periodButtons.forEach((button) => {
     activePeriod = null;
     periodButtons.forEach((btn) => btn.classList.remove('active'));
     updateDashboard();
+  });
+});
+
+// Navigation buttons
+navButtons.forEach((button) => {
+  button.addEventListener('click', () => changePage(button.dataset.page));
+});
+
+// Platform page buttons
+platformPageButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const page = button.dataset.page;
+    changePage(page);
   });
 });
 
