@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell sidebar-closed">
     <aside class="panel panel-sidebar">
       <div class="brand">
         <div class="brand-mark">J</div>
@@ -16,10 +16,9 @@
           <p>Dashboard de Performance</p>
         </div>
       </div>
-      <p class="panel-text">Carregue o arquivo de dados consolidado para gerar a análise de campanhas de Google Ads, Meta Ads e TikTok Ads.</p>
       
       <div class="panel-section">
-        <h3>Navegação</h3>
+        <h3>Páginas Principais</h3>
         <div class="nav-buttons">
           <button class="nav-btn active" data-page="dashboard">Dashboard</button>
           <button class="nav-btn" data-page="daily">Acompanhamento Diário</button>
@@ -27,12 +26,20 @@
       </div>
 
       <div class="panel-section">
-        <h3>Plataformas</h3>
+        <h3>Canais</h3>
         <div class="platform-buttons">
           <button class="platform-btn active" data-platform="all">Todos</button>
           <button class="platform-btn platform-page-btn" data-platform="Google Ads" data-page="google">Google Ads</button>
           <button class="platform-btn platform-page-btn" data-platform="Meta Ads" data-page="meta">Meta Ads</button>
           <button class="platform-btn platform-page-btn" data-platform="TikTok Ads" data-page="tiktok">TikTok Ads</button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3>Tipo de Campanha</h3>
+        <div class="campaign-buttons">
+          <button class="campaign-btn active" data-campaign="all">Todas</button>
+          <button class="campaign-btn" data-campaign="awareness">Awareness</button>
         </div>
       </div>
       <div class="panel-section panel-insights">
@@ -73,6 +80,7 @@
           <span id="fileStatus">Nenhum arquivo carregado</span>
         </div>
       </header>
+      <button class="menu-toggle-btn" id="menuToggleBtn" type="button">Abrir menu</button>
 
       <!-- PAGE 1: DASHBOARD -->
       <div class="page-content" data-page="dashboard">

@@ -1,12 +1,15 @@
 const platformButtons = document.querySelectorAll('.platform-btn');
 const navButtons = document.querySelectorAll('.nav-btn');
 const platformPageButtons = document.querySelectorAll('.platform-page-btn');
+const campaignButtons = document.querySelectorAll('.campaign-btn');
 const kpiCards = document.getElementById('kpiCards');
 const campaignTable = document.getElementById('campaignTable');
 const insightsList = document.getElementById('insightsList');
 const downloadBtn = document.getElementById('downloadBtn');
 const fileInput = document.getElementById('fileInput');
 const fileStatus = document.getElementById('fileStatus');
+const menuToggleBtn = document.getElementById('menuToggleBtn');
+const appShell = document.querySelector('.app-shell');
 const periodButtons = document.querySelectorAll('.period-btn');
 const startDateInput = document.getElementById('startDate');
 const endDateInput = document.getElementById('endDate');
@@ -17,6 +20,7 @@ const pageDesc = document.getElementById('pageDesc');
 let rawData = [];
 let activePlatform = 'all';
 let activePage = 'dashboard';
+let activeCampaign = 'all';
 let activePeriod = null;
 let revenueChart;
 let performanceChart;
@@ -24,18 +28,31 @@ const pieCharts = [];
 const timeSeriesCharts = [];
 
 const fieldMap = {
-  date: ['data', 'date', 'periodo', 'dia', 'timestamp'],
-  platform: ['plataforma', 'platform', 'channel', 'midia', 'source', 'network', 'publisher_platform', 'publisher platform', 'advertising_channel_type', 'advertising channel type', 'advertising_channel_sub_type', 'advertising channel sub-type'],
-  campaign: ['campanha', 'campaign', 'campaign_name', 'campaign name', 'nome_da_campanha'],
-  impressions: ['impressoes', 'impressions', 'impression', 'imps'],
-  clicks: ['cliques', 'clicks'],
-  cost: ['custo', 'cost', 'spend', 'investimento', 'investment'],
-  revenue: ['receita', 'revenue', 'faturamento', 'retorno'],
-  conversions: ['conversoes', 'conversions', 'leads', 'vendas', 'sales'],
-  videoViews: ['video_views', 'video views', 'views', 'video views', 'video views total', 'video views', 'video views 100%'],
-  completeViews: ['complete_views', 'complete views', 'completeviews', 'complete_view', 'complete view', 'views_100', 'views 100%', 'thruplay actions', 'thruplay_actions'],
-  frequency: ['frequencia', 'frequency', 'freq'],
-  higherReach: ['higher_reach', 'higher reach', 'reach', 'alcance']
+  date: ['data', 'date', 'periodo', 'dia', 'timestamp', 'day', 'data_inicio', 'data inicio', 'data_fim', 'data fim'],
+  platform: [
+    'plataforma', 'platform', 'channel', 'midia', 'source', 'network', 'publisher_platform', 'publisher platform',
+    'advertising_channel_type', 'advertising channel type', 'advertising_channel_sub_type', 'advertising channel sub-type',
+    'rede', 'rede_publicitaria', 'rede publicitária', 'account_name', 'account name', 'account_id', 'account id'
+  ],
+  campaign: [
+    'campanha', 'campaign', 'campaign_name', 'campaign name', 'nome_da_campanha', 'nome da campanha',
+    'ad_set_name', 'ad set name', 'ad_name', 'ad name', 'campaign_id', 'campaign id'
+  ],
+  impressions: ['impressoes', 'impressions', 'impression', 'imps', 'impressões'],
+  clicks: ['cliques', 'clicks', 'clique'],
+  cost: ['custo', 'cost', 'spend', 'investimento', 'investment', 'gasto', 'valor_gasto', 'valor gasto', 'cpc_total', 'cpc total'],
+  revenue: ['receita', 'revenue', 'faturamento', 'retorno', 'retorno_total', 'retorno total', 'roas', 'valor_receita', 'valor receita'],
+  conversions: ['conversoes', 'conversions', 'leads', 'vendas', 'sales', 'conversões', 'numero_conversoes', 'numero conversoes'],
+  videoViews: [
+    'video_views', 'video views', 'views', 'video views total', 'video views', 'video views 100%',
+    'video_views_total', 'video views total', 'views_100', 'views 100%', 'video_views_100', 'video views 100'
+  ],
+  completeViews: [
+    'complete_views', 'complete views', 'completeviews', 'complete_view', 'complete view',
+    'views_100', 'views 100%', 'thruplay actions', 'thruplay_actions', 'thruplay', 'complete_views_total', 'complete views total'
+  ],
+  frequency: ['frequencia', 'frequency', 'freq', 'frequência', 'frequencia_media', 'frequencia media'],
+  higherReach: ['higher_reach', 'higher reach', 'reach', 'alcance', 'alcance_total', 'alcance total']
 };
 
 function normalizeHeader(value) {
@@ -50,18 +67,84 @@ function normalizeHeader(value) {
 }
 
 function normalizePlatform(value) {
+  if (!value || typeof value !== 'string') return 'Desconhecido';
+  
   const normalized = value.toString().trim().toLowerCase();
-  if (!normalized) return '';
-  if (normalized.includes('google')) return 'Google Ads';
-  if (normalized.includes('meta') || normalized.includes('facebook') || normalized.includes('instagram')) return 'Meta Ads';
-  if (normalized.includes('tiktok')) return 'TikTok Ads';
-  return value.toString().trim();
+  
+  // Google Ads
+  if (normalized.includes('google') || normalized.includes('search') || normalized.includes('display') || 
+      normalized.includes('youtube') || normalized.includes('video') || normalized.includes('discovery')) {
+    return 'Google Ads';
+  }
+  
+  // Meta Ads (Facebook, Instagram, Audience Network)
+  if (normalized.includes('meta') || normalized.includes('facebook') || normalized.includes('instagram') || 
+      normalized.includes('audience') || normalized.includes('messenger') || normalized.includes('facebook_ads')) {
+    return 'Meta Ads';
+  }
+  
+  // TikTok Ads
+  if (normalized.includes('tiktok') || normalized.includes('tik tok') || normalized.includes('tiktok_ads')) {
+    return 'TikTok Ads';
+  }
+  
+  // Outros casos
+  if (normalized.includes('linkedin') || normalized.includes('twitter') || normalized.includes('pinterest')) {
+    return value.toString().trim(); // Mantém o nome original para plataformas futuras
+  }
+  
+  return 'Desconhecido';
+}
+
+function detectCampaignType(campaignName) {
+  if (!campaignName || typeof campaignName !== 'string') return 'all';
+  
+  const normalized = campaignName.toString().trim().toLowerCase();
+  
+  // Awareness/Brand
+  if (normalized.includes('awareness') || normalized.includes('brand') || normalized.includes('reach') || 
+      normalized.includes('brand awareness') || normalized.includes('brand_awareness') ||
+      normalized.includes('alcance') || normalized.includes('conscientizacao')) {
+    return 'awareness';
+  }
+  
+  // Consideration
+  if (normalized.includes('consideration') || normalized.includes('consideracao') || 
+      normalized.includes('traffic') || normalized.includes('engagement') || 
+      normalized.includes('interacao') || normalized.includes('video') || normalized.includes('view')) {
+    return 'consideration';
+  }
+  
+  // Conversion
+  if (normalized.includes('conversion') || normalized.includes('conversao') || 
+      normalized.includes('sales') || normalized.includes('vendas') || 
+      normalized.includes('leads') || normalized.includes('conversoes') || 
+      normalized.includes('purchase') || normalized.includes('compra')) {
+    return 'conversion';
+  }
+  
+  // Default to awareness if can't determine
+  return 'awareness';
 }
 
 function parseNumber(value) {
-  if (value === undefined || value === null || value === '') return 0;
-  const text = value.toString().trim().replace(/\./g, '').replace(/,/g, '.');
-  const parsed = parseFloat(text.replace(/[^0-9.\-]/g, ''));
+  if (value === undefined || value === null || value === '' || value === 'N/A' || value === 'n/a') return 0;
+  
+  // Remove currency symbols, spaces, and convert commas to dots
+  let cleanValue = value.toString().trim()
+    .replace(/R\$|USD|\$|€|£|¥|₹/g, '') // Remove currency symbols
+    .replace(/\s+/g, '') // Remove spaces
+    .replace(/,/g, '.'); // Convert comma to dot
+  
+  // Handle percentage signs
+  if (cleanValue.includes('%')) {
+    cleanValue = cleanValue.replace('%', '');
+    const parsed = parseFloat(cleanValue);
+    return Number.isFinite(parsed) ? parsed / 100 : 0; // Convert percentage to decimal
+  }
+  
+  // Parse the number
+  const parsed = parseFloat(cleanValue.replace(/[^0-9.\-]/g, ''));
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
@@ -76,18 +159,35 @@ function extractField(row, names) {
 
 function normalizeRow(row) {
   const normalized = {};
+  
+  // Normalize all headers
   Object.keys(row).forEach((key) => {
     normalized[normalizeHeader(key)] = row[key];
   });
-
+  
+  // Extract and validate date
   const rawDateValue = extractField(normalized, fieldMap.date) || '';
   const parsedDate = parseDate(rawDateValue);
+  
+  // Extract and normalize platform
   const rawPlatform = String(extractField(normalized, fieldMap.platform) || '').trim();
-
+  const platform = normalizePlatform(rawPlatform);
+  
+  // Extract campaign and detect type
+  const campaign = String(extractField(normalized, fieldMap.campaign) || '').trim();
+  const campaignType = detectCampaignType(campaign);
+  
+  // Validate required fields
+  if (!parsedDate || !platform || !campaign) {
+    console.warn('Linha inválida - faltando dados obrigatórios:', { date: rawDateValue, platform: rawPlatform, campaign });
+    return null; // Skip invalid rows
+  }
+  
   return {
     date: parsedDate,
-    platform: normalizePlatform(rawPlatform),
-    campaign: String(extractField(normalized, fieldMap.campaign) || '').trim(),
+    platform: platform,
+    campaign: campaign,
+    campaignType: campaignType,
     impressions: parseNumber(extractField(normalized, fieldMap.impressions)),
     clicks: parseNumber(extractField(normalized, fieldMap.clicks)),
     cost: parseNumber(extractField(normalized, fieldMap.cost)),
@@ -101,9 +201,66 @@ function normalizeRow(row) {
 }
 
 function normalizeRows(rows) {
-  return rows
+  const validRows = rows
     .map(normalizeRow)
-    .filter((item) => item.date && item.platform && item.campaign);
+    .filter((item) => item !== null); // Remove invalid rows
+  
+  console.log(`Dados processados: ${validRows.length} linhas válidas de ${rows.length} totais`);
+  
+  // Log summary by platform
+  const platformSummary = validRows.reduce((acc, item) => {
+    acc[item.platform] = (acc[item.platform] || 0) + 1;
+    return acc;
+  }, {});
+  console.log('Resumo por plataforma:', platformSummary);
+  
+  return validRows;
+}
+
+function validateData(data) {
+  const warnings = [];
+  
+  // Check for data consistency
+  const platforms = [...new Set(data.map(item => item.platform))];
+  const dateRange = data.reduce((range, item) => {
+    if (!range.min || item.date < range.min) range.min = item.date;
+    if (!range.max || item.date > range.max) range.max = item.date;
+    return range;
+  }, { min: null, max: null });
+  
+  // Check for negative values
+  const negativeValues = data.filter(item => 
+    item.cost < 0 || item.revenue < 0 || item.impressions < 0 || item.clicks < 0
+  );
+  if (negativeValues.length > 0) {
+    warnings.push(`Encontrados ${negativeValues.length} registros com valores negativos`);
+  }
+  
+  // Check for unrealistic CTR (click-through rate)
+  const highCTR = data.filter(item => 
+    item.impressions > 0 && (item.clicks / item.impressions) > 0.5
+  );
+  if (highCTR.length > 0) {
+    warnings.push(`Encontrados ${highCTR.length} registros com CTR > 50% (possível erro de dados)`);
+  }
+  
+  // Check for missing data patterns
+  const missingRevenue = data.filter(item => item.cost > 0 && item.revenue === 0);
+  if (missingRevenue.length > data.length * 0.3) {
+    warnings.push('Grande quantidade de registros sem receita - verifique se os dados estão completos');
+  }
+  
+  // Log validation results
+  if (warnings.length > 0) {
+    console.warn('Avisos de validação de dados:', warnings);
+  } else {
+    console.log('Validação de dados concluída - nenhum problema identificado');
+  }
+  
+  console.log(`Período dos dados: ${dateRange.min ? dateRange.min.toLocaleDateString('pt-BR') : 'N/A'} até ${dateRange.max ? dateRange.max.toLocaleDateString('pt-BR') : 'N/A'}`);
+  console.log(`Plataformas encontradas: ${platforms.join(', ')}`);
+  
+  return warnings;
 }
 
 function parseCSV(text) {
@@ -210,8 +367,26 @@ function filterByDate(items) {
 }
 
 function getFilteredRows(platform = 'all') {
-  const filteredByPlatform = platform === 'all' ? rawData : rawData.filter((item) => item.platform === platform);
-  return filterByDate(filteredByPlatform);
+  let filtered = rawData;
+  
+  // Filter by platform
+  if (platform !== 'all') {
+    filtered = filtered.filter((item) => item.platform === platform);
+  }
+  
+  // Filter by campaign type
+  if (activeCampaign !== 'all') {
+    filtered = filtered.filter((item) => {
+      const campaignName = item.campaign.toLowerCase();
+      if (activeCampaign === 'awareness') {
+        return campaignName.includes('awareness') || campaignName.includes('brand') || campaignName.includes('reach');
+      }
+      return true; // For future campaign types
+    });
+  }
+  
+  // Filter by date
+  return filterByDate(filtered);
 }
 
 function clearPeriodSelection() {
@@ -745,6 +920,13 @@ function changePage(newPage) {
     document.querySelector('[data-platform="all"]')?.classList.add('active');
   }
   
+  // Reset campaign filter when changing pages
+  if (newPage !== 'dashboard') {
+    activeCampaign = 'all';
+    campaignButtons.forEach((btn) => btn.classList.remove('active'));
+    document.querySelector('[data-campaign="all"]')?.classList.add('active');
+  }
+  
   // Render content for the page
   clearTimeSeriesCharts();
   clearPieCharts();
@@ -781,7 +963,9 @@ function loadFileData(file) {
     }
 
     rawData = normalizeRows(rows);
+    validateData(rawData);
     fileStatus.textContent = `${file.name} carregado (${rawData.length} linhas)`;
+
     activePlatform = 'all';
     platformButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.platform === 'all'));
     updateDashboard();
@@ -801,6 +985,11 @@ platformButtons.forEach((button) => {
     activePlatform = button.dataset.platform;
     updateDashboard();
   });
+});
+
+menuToggleBtn.addEventListener('click', () => {
+  const isClosed = appShell.classList.toggle('sidebar-closed');
+  menuToggleBtn.textContent = isClosed ? 'Abrir menu' : 'Fechar menu';
 });
 
 fileInput.addEventListener('change', (event) => {
@@ -871,6 +1060,16 @@ platformPageButtons.forEach((button) => {
   button.addEventListener('click', () => {
     const page = button.dataset.page;
     changePage(page);
+  });
+});
+
+// Campaign type buttons
+campaignButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    campaignButtons.forEach((btn) => btn.classList.remove('active'));
+    button.classList.add('active');
+    activeCampaign = button.dataset.campaign;
+    updateDashboard();
   });
 });
 
