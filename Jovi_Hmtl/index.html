@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JOVI Marketing Performance</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="panel panel-sidebar">
+      <div class="brand">
+        <div class="brand-mark">J</div>
+        <div>
+          <strong>JOVI</strong>
+          <p>Dashboard de Performance</p>
+        </div>
+      </div>
+      <p class="panel-text">Carregue o arquivo de dados consolidado para gerar a análise de campanhas de Google Ads, Meta Ads e TikTok Ads.</p>
+      <div class="panel-section">
+        <h3>Plataformas</h3>
+        <div class="platform-buttons">
+          <button class="platform-btn active" data-platform="all">Todos</button>
+          <button class="platform-btn" data-platform="Google Ads">Google Ads</button>
+          <button class="platform-btn" data-platform="Meta Ads">Meta Ads</button>
+          <button class="platform-btn" data-platform="TikTok Ads">TikTok Ads</button>
+        </div>
+      </div>
+      <div class="panel-section panel-insights">
+        <h3>Insights</h3>
+        <ul id="insightsList"></ul>
+      </div>
+    </aside>
+
+    <main class="panel panel-main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Relatório Integrado</p>
+          <h1>Performance de Campanhas</h1>
+          <p class="description">Acompanhe investimento, receita, ROAS e conversão para as plataformas de advertising da JOVI.</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="date-filter">
+            <div class="period-buttons">
+              <button class="period-btn" data-period="daily">Dia</button>
+              <button class="period-btn" data-period="weekly">Semanal</button>
+              <button class="period-btn" data-period="monthly">Mensal</button>
+            </div>
+            <div class="date-range-inputs">
+              <label>
+                <span>De</span>
+                <input type="date" id="startDate" />
+              </label>
+              <label>
+                <span>Até</span>
+                <input type="date" id="endDate" />
+              </label>
+            </div>
+          </div>
+          <label class="upload-button">
+            <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" />
+            Carregar base de dados
+          </label>
+          <span id="fileStatus">Nenhum arquivo carregado</span>
+        </div>
+      </header>
+
+      <section class="kpi-grid" id="kpiCards"></section>
+
+      <section class="pizza-grid">
+        <article class="pie-card">
+          <div class="chart-card-header">
+            <div>
+              <h2>Investimento por canal</h2>
+              <p>Distribuição de gasto.</p>
+            </div>
+          </div>
+          <canvas id="investmentPie"></canvas>
+        </article>
+        <article class="pie-card">
+          <div class="chart-card-header">
+            <div>
+              <h2>Impressões por canal</h2>
+              <p>Alcance comparado.</p>
+            </div>
+          </div>
+          <canvas id="impressionsPie"></canvas>
+        </article>
+        <article class="pie-card">
+          <div class="chart-card-header">
+            <div>
+              <h2>Cliques por canal</h2>
+              <p>Interações por plataforma.</p>
+            </div>
+          </div>
+          <canvas id="clicksPie"></canvas>
+        </article>
+        <article class="pie-card">
+          <div class="chart-card-header">
+            <div>
+              <h2>Video Views por canal</h2>
+              <p>Consumo de vídeo por canal.</p>
+            </div>
+          </div>
+          <canvas id="videoViewsPie"></canvas>
+        </article>
+      </section>
+
+      <section class="table-card">
+        <div class="table-header">
+          <div>
+            <h2>Métricas por canal</h2>
+            <p>Valores consolidados por plataforma.</p>
+          </div>
+          <button class="action-button" id="downloadBtn">Exportar CSV</button>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Canal</th>
+                <th>Investimento</th>
+                <th>Impressões</th>
+                <th>CPM</th>
+                <th>Cliques</th>
+                <th>Video Views</th>
+                <th>CPV</th>
+                <th>VTR</th>
+                <th>Complete Views</th>
+                <th>Complete Views Rate</th>
+                <th>Frequência</th>
+                <th>Higher Reach</th>
+              </tr>
+            </thead>
+            <tbody id="campaignTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="vendor/chart.umd.min.js"></script>
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
