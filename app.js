@@ -569,23 +569,28 @@ function groupByDate(platform = 'all') {
 
 function renderDailyPage() {
   try {
-    const dailyData = groupByDate(activePlatform);
+    // Obter data atual no formato YYYY-MM-DD
+    const today = new Date();
+    const todayStr = formatAsDateValue(today);
+    
+    // Filtrar dados apenas para o dia atual
+    const dailyData = groupByDate(activePlatform).filter(item => item.date === todayStr);
     const dailyKpiCards = document.getElementById('dailyKpiCards');
     if (!dailyKpiCards) return;
     
     if (!dailyData.length) {
-      dailyKpiCards.innerHTML = '<p>Nenhum dado disponível</p>';
+      dailyKpiCards.innerHTML = `<p>Nenhum dado disponível para ${today.toLocaleDateString('pt-BR')}</p>`;
       return;
     }
     
-    const latest = dailyData[dailyData.length - 1];
+    const todayData = dailyData[0]; // Pega o dado do dia atual
     const cards = [
-      { label: 'Investimento', value: formatCurrency(latest.cost) },
-      { label: 'Impressões', value: latest.impressions.toLocaleString('pt-BR') },
-      { label: 'Cliques', value: latest.clicks.toLocaleString('pt-BR') },
-      { label: 'CPM', value: formatCurrency(latest.cpm) },
-      { label: 'CPC', value: formatCurrency(latest.cpc) },
-      { label: 'CTR', value: formatPercent(latest.ctr) }
+      { label: 'Investimento', value: formatCurrency(todayData.cost) },
+      { label: 'Impressões', value: todayData.impressions.toLocaleString('pt-BR') },
+      { label: 'Cliques', value: todayData.clicks.toLocaleString('pt-BR') },
+      { label: 'CPM', value: formatCurrency(todayData.cpm) },
+      { label: 'CPC', value: formatCurrency(todayData.cpc) },
+      { label: 'CTR', value: formatPercent(todayData.ctr) }
     ];
     
     dailyKpiCards.innerHTML = cards.map((card) => `
@@ -595,8 +600,8 @@ function renderDailyPage() {
       </div>
     `).join('');
     
-    // Render time series charts
-    renderTimeSeriesCharts(dailyData);
+    // Render time series charts com dados do dia atual
+    renderTimeSeriesCharts([todayData]);
     forceChartResize();
   } catch (error) {
     console.error('Erro ao renderizar pagina diaria:', error);
