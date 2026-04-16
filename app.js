@@ -685,14 +685,21 @@ function renderTimeSeriesCharts(dailyData) {
 
 function renderPlatformPage(page) {
   try {
+    console.log(`Renderizando página da plataforma: ${page}`);
     const platformMap = { google: 'Google Ads', meta: 'Meta Ads', tiktok: 'TikTok Ads' };
     const platform = platformMap[page];
     const dailyData = groupByDate(platform);
     
+    console.log(`Dados encontrados para ${platform}: ${dailyData.length} dias`);
+    
     const kpiContainer = document.getElementById(`${page}KpiCards`);
-    if (!kpiContainer) return;
+    if (!kpiContainer) {
+      console.error(`Container ${page}KpiCards não encontrado`);
+      return;
+    }
     
     if (!dailyData.length) {
+      console.warn(`Sem dados para a plataforma ${platform}`);
       kpiContainer.innerHTML = '<p>Nenhum dado disponível</p>';
       return;
     }
