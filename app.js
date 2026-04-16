@@ -1233,7 +1233,7 @@ campaignButtons.forEach((button) => {
 });
 
 async function autoLoadFakeData() {
-  // Map filename fragment → canonical platform name to inject into rows
+  // Map filename fragment -> canonical platform name to inject into rows
   const files = [
     { url: 'Base_Fake/Base_Ficticia_GoogleAds_Display&Video.xlsx', platform: 'Google Ads' },
     { url: 'Base_Fake/Base_Ficticia_GoogleAds_Search.xlsx',         platform: 'Google Ads' },
@@ -1241,25 +1241,35 @@ async function autoLoadFakeData() {
     { url: 'Base_Fake/Base_Ficticia_TiktokAds.xlsx',                platform: 'TikTok Ads' }
   ];
 
-  fileStatus.textContent = 'Carregando dados…';
+  fileStatus.textContent = 'Carregando dados...';
   
   try {
     let allRows = [];
     
     for (const { url, platform } of files) {
       try {
+        console.log(`Carregando arquivo: ${url}`);
         const response = await fetch(url);
         if (!response.ok) {
           console.warn(`Não foi possível carregar ${url}: ${response.statusText}`);
           continue;
         }
         const data = await response.arrayBuffer();
-        // cellDates: true → XLSX returns Date objects instead of serial numbers
+        // cellDates: true -> XLSX returns Date objects instead of serial numbers
         const workbook = XLSX.read(new Uint8Array(data), { type: 'array', cellDates: true });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        
+        console.log(`Arquivo ${url}: ${rows.length} linhas brutas`);
+        
+        // Debug: mostrar primeira linha para verificar estrutura
+        if (rows.length > 0) {
+          console.log('Estrutura da primeira linha:', Object.keys(rows[0]));
+          console.log('Primeira linha (sample):', rows[0]);
+        }
+        
         // Inject canonical platform so normalizeRow always gets a guaranteed match
-        // Key must survive normalizeHeader(): 'x_platform' → 'x_platform' ✓
+        // Key must survive normalizeHeader(): 'x_platform' -> 'x_platform' 
         const tagged = rows.map((row) => ({ ...row, x_platform: platform }));
         allRows = allRows.concat(tagged);
       } catch (e) {
@@ -1267,8 +1277,18 @@ async function autoLoadFakeData() {
       }
     }
     
+    console.log(`Total de linhas antes da normalização: ${allRows.length}`);
+    
     if (allRows.length > 0) {
       rawData = normalizeRows(allRows);
+      console.log(`Total de linhas após normalização: ${rawData.length}`);
+      
+      // Debug: mostrar primeiras linhas normalizadas
+      if (rawData.length > 0) {
+        console.log('Primeira linha normalizada:', rawData[0]);
+        console.log('Colunas disponíveis após normalização:', Object.keys(rawData[0]));
+      }
+      
       validateData(rawData);
       fileStatus.textContent = `${rawData.length} registros carregados`;
       
