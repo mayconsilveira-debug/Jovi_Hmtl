@@ -1081,6 +1081,26 @@ function changePage(newPage) {
       document.querySelector('[data-platform="all"]')?.classList.add('active');
     }
     
+    // Forçar atualização visual para garantir que o menu reflita o estado correto
+    setTimeout(() => {
+      // Garantir que apenas o botão correto está ativo
+      document.querySelectorAll('.nav-btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.page === newPage);
+      });
+      
+      // Garantir que apenas o botão de plataforma correto está ativo
+      if (['google', 'meta', 'tiktok'].includes(newPage)) {
+        const platformMap = { google: 'Google Ads', meta: 'Meta Ads', tiktok: 'TikTok Ads' };
+        document.querySelectorAll('.platform-btn').forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.platform === platformMap[newPage]);
+        });
+      } else {
+        document.querySelectorAll('.platform-btn').forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.platform === 'all');
+        });
+      }
+    }, 10);
+    
     // Reset campaign filter when changing pages
     if (newPage !== 'dashboard') {
       activeCampaign = 'all';
