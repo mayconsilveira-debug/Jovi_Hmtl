@@ -45,11 +45,14 @@ const fieldMap = {
   conversions: ['conversoes', 'conversions', 'leads', 'vendas', 'sales', 'conversões', 'numero_conversoes', 'numero conversoes'],
   videoViews: [
     'video_views', 'video views', 'views', 'video views total', 'video views', 'video views 100%',
-    'video_views_total', 'video views total', 'views_100', 'views 100%', 'video_views_100', 'video views 100'
+    'video_views_total', 'video views total', 'views_100', 'views 100%', 'video_views_100', 'video views 100',
+    'three-second video views', 'three_second_video_views', '3-second video views', '2-second continuous video plays',
+    '15-second video views', 'video play actions', 'avg watch time per person'
   ],
   completeViews: [
     'complete_views', 'complete views', 'completeviews', 'complete_view', 'complete view',
-    'views_100', 'views 100%', 'thruplay actions', 'thruplay_actions', 'thruplay', 'complete_views_total', 'complete views total'
+    'views_100', 'views 100%', 'thruplay actions', 'thruplay_actions', 'thruplay', 'complete_views_total', 'complete views total',
+    'video watches at 100%', 'video_watches_at_100', 'video views at 100%', 'video_views_at_100'
   ],
   frequency: ['frequencia', 'frequency', 'freq', 'frequência', 'frequencia_media', 'frequencia media'],
   higherReach: ['higher_reach', 'higher reach', 'reach', 'alcance', 'alcance_total', 'alcance total']
