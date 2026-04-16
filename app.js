@@ -349,13 +349,27 @@ function formatAsDateValue(date) {
   return `${year}-${month}-${day}`;
 }
 
-function formatDateBR(dateStr) {
-  // Converte YYYY-MM-DD para DD/MM/YYYY
-  if (!dateStr || typeof dateStr !== 'string') return '';
-  const parts = dateStr.split('-');
-  if (parts.length !== 3) return dateStr;
-  const [year, month, day] = parts;
-  return `${day}/${month}/${year}`;
+function formatDateBR(dateInput) {
+  // Converte Date ou YYYY-MM-DD para DD/MM/YYYY
+  if (!dateInput) return '';
+  
+  // Se for objeto Date, extrair componentes
+  if (dateInput instanceof Date) {
+    const day = String(dateInput.getDate()).padStart(2, '0');
+    const month = String(dateInput.getMonth() + 1).padStart(2, '0');
+    const year = dateInput.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+  
+  // Se for string, tentar converter de YYYY-MM-DD
+  if (typeof dateInput === 'string') {
+    const parts = dateInput.split('-');
+    if (parts.length !== 3) return dateInput;
+    const [year, month, day] = parts;
+    return `${day}/${month}/${year}`;
+  }
+  
+  return '';
 }
 
 function getDateRange(items) {
