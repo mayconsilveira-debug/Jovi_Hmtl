@@ -349,6 +349,15 @@ function formatAsDateValue(date) {
   return `${year}-${month}-${day}`;
 }
 
+function formatDateBR(dateStr) {
+  // Converte YYYY-MM-DD para DD/MM/YYYY
+  if (!dateStr || typeof dateStr !== 'string') return '';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  const [year, month, day] = parts;
+  return `${day}/${month}/${year}`;
+}
+
 function getDateRange(items) {
   if (!items.length) return { min: null, max: null };
   const dates = items
@@ -609,7 +618,7 @@ function renderDailyPage() {
 }
 
 function renderTimeSeriesCharts(dailyData) {
-  const labels = dailyData.map((d) => d.date);
+  const labels = dailyData.map((d) => formatDateBR(d.date));
   const barChartConfig = (canvasId, barData, lineData, barLabel, lineLabel, yAxisLabel) => {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
@@ -758,7 +767,7 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
     return;
   }
   
-  const labels = dailyData.map((d) => d.date);
+  const labels = dailyData.map((d) => formatDateBR(d.date));
   
   const barChartConfig = (canvasId, barData, lineData, barLabel, lineLabel) => {
     const ctx = document.getElementById(canvasId);
