@@ -4,11 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JOVI Marketing Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app-shell sidebar-closed">
-    <aside class="panel panel-sidebar">
+  <div class="app-shell">
+    <aside class="panel-sidebar">
       <div class="brand">
         <div class="brand-mark">J</div>
         <div>
@@ -18,42 +21,36 @@
       </div>
       
       <div class="panel-section">
-        <h3>Páginas Principais</h3>
-        <div class="nav-buttons">
-          <button class="nav-btn active" data-page="dashboard">Dashboard</button>
-          <button class="nav-btn" data-page="daily">Acompanhamento Diário</button>
-        </div>
+        <h3>Páginas</h3>
+        <button class="nav-btn active" data-page="dashboard">📊 Dashboard</button>
+        <button class="nav-btn" data-page="daily">📅 Acomp. Diário</button>
       </div>
 
       <div class="panel-section">
         <h3>Canais</h3>
-        <div class="platform-buttons">
-          <button class="platform-btn active" data-platform="all">Todos</button>
-          <button class="platform-btn platform-page-btn" data-platform="Google Ads" data-page="google">Google Ads</button>
-          <button class="platform-btn platform-page-btn" data-platform="Meta Ads" data-page="meta">Meta Ads</button>
-          <button class="platform-btn platform-page-btn" data-platform="TikTok Ads" data-page="tiktok">TikTok Ads</button>
-        </div>
+        <button class="platform-btn active" data-platform="all">🌐 Todos os canais</button>
+        <button class="platform-btn platform-page-btn" data-platform="Google Ads" data-page="google">🔵 Google Ads</button>
+        <button class="platform-btn platform-page-btn" data-platform="Meta Ads" data-page="meta">🟣 Meta Ads</button>
+        <button class="platform-btn platform-page-btn" data-platform="TikTok Ads" data-page="tiktok">⚫ TikTok Ads</button>
       </div>
 
       <div class="panel-section">
-        <h3>Tipo de Campanha</h3>
-        <div class="campaign-buttons">
-          <button class="campaign-btn active" data-campaign="all">Todas</button>
-          <button class="campaign-btn" data-campaign="awareness">Awareness</button>
-        </div>
+        <h3>Campanha</h3>
+        <button class="campaign-btn active" data-campaign="all">★ Todas</button>
+        <button class="campaign-btn" data-campaign="awareness">📈 Awareness</button>
       </div>
       <div class="panel-section panel-insights">
-        <h3>Insights</h3>
+        <h3>💡 Insights</h3>
         <ul id="insightsList"></ul>
       </div>
     </aside>
 
-    <main class="panel panel-main">
+    <main class="panel-main">
       <header class="topbar">
-        <div>
+        <button class="menu-toggle-btn" id="menuToggleBtn" type="button" title="Alternar menu">☰</button>
+        <div class="topbar-title">
           <p class="eyebrow" id="pageEyebrow">Relatório Integrado</p>
           <h1 id="pageTitle">Performance de Campanhas</h1>
-          <p class="description" id="pageDesc">Acompanhe investimento, receita, ROAS e conversão para as plataformas de advertising da JOVI.</p>
         </div>
         <div class="topbar-actions">
           <div class="date-filter">
@@ -80,7 +77,6 @@
           <span id="fileStatus">Nenhum arquivo carregado</span>
         </div>
       </header>
-      <button class="menu-toggle-btn" id="menuToggleBtn" type="button">Abrir menu</button>
 
       <!-- PAGE 1: DASHBOARD -->
       <div class="page-content" data-page="dashboard">
@@ -94,7 +90,7 @@
                 <p>Distribuição de gasto.</p>
               </div>
             </div>
-            <canvas id="investmentPie"></canvas>
+            <canvas id="investmentPie" height="240"></canvas>
           </article>
           <article class="pie-card">
             <div class="chart-card-header">
@@ -103,7 +99,7 @@
                 <p>Alcance comparado.</p>
               </div>
             </div>
-            <canvas id="impressionsPie"></canvas>
+            <canvas id="impressionsPie" height="240"></canvas>
           </article>
           <article class="pie-card">
             <div class="chart-card-header">
@@ -112,7 +108,7 @@
                 <p>Interações por plataforma.</p>
               </div>
             </div>
-            <canvas id="clicksPie"></canvas>
+            <canvas id="clicksPie" height="240"></canvas>
           </article>
           <article class="pie-card">
             <div class="chart-card-header">
@@ -121,7 +117,7 @@
                 <p>Consumo de vídeo por canal.</p>
               </div>
             </div>
-            <canvas id="videoViewsPie"></canvas>
+            <canvas id="videoViewsPie" height="240"></canvas>
           </article>
         </section>
 

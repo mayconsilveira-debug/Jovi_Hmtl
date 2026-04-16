@@ -67,30 +67,32 @@ function normalizeHeader(value) {
 }
 
 function normalizePlatform(value) {
-  if (!value || typeof value !== 'string') return 'Desconhecido';
+  if (value === null || value === undefined || value === '') return 'Desconhecido';
   
-  const normalized = value.toString().trim().toLowerCase();
+  const normalized = String(value).trim().toLowerCase();
+  if (!normalized) return 'Desconhecido';
   
-  // Google Ads
-  if (normalized.includes('google') || normalized.includes('search') || normalized.includes('display') || 
-      normalized.includes('youtube') || normalized.includes('video') || normalized.includes('discovery')) {
+  // Google Ads - also catch 'search', 'display', 'youtube', 'video' as Google subtypes
+  if (normalized.includes('google') || normalized.includes('search') || normalized.includes('display') ||
+      normalized.includes('youtube') || normalized.includes('discovery')) {
     return 'Google Ads';
   }
   
   // Meta Ads (Facebook, Instagram, Audience Network)
-  if (normalized.includes('meta') || normalized.includes('facebook') || normalized.includes('instagram') || 
-      normalized.includes('audience') || normalized.includes('messenger') || normalized.includes('facebook_ads')) {
+  if (normalized.includes('meta') || normalized.includes('facebook') || normalized.includes('instagram') ||
+      normalized.includes('audience') || normalized.includes('messenger')) {
     return 'Meta Ads';
   }
   
-  // TikTok Ads
-  if (normalized.includes('tiktok') || normalized.includes('tik tok') || normalized.includes('tiktok_ads')) {
+  // TikTok Ads — catch all variations including just 'tik' alone
+  if (normalized.includes('tiktok') || normalized.includes('tik tok') || normalized.includes('tik_tok') ||
+      normalized.includes('ttads') || normalized.includes('tt ads') || normalized === 'tik') {
     return 'TikTok Ads';
   }
   
-  // Outros casos
+  // LinkedIn / Twitter / Pinterest — keep original name
   if (normalized.includes('linkedin') || normalized.includes('twitter') || normalized.includes('pinterest')) {
-    return value.toString().trim(); // Mantém o nome original para plataformas futuras
+    return String(value).trim();
   }
   
   return 'Desconhecido';
@@ -170,17 +172,21 @@ function normalizeRow(row) {
   const parsedDate = parseDate(rawDateValue);
   
   // Extract and normalize platform
-  const rawPlatform = String(extractField(normalized, fieldMap.platform) || '').trim();
-  const platform = normalizePlatform(rawPlatform);
+  // Priority 1: injected platform tag (key becomes 'x_platform' after normalizeHeader)
+  // Priority 2: fall back to fieldMap column detection
+  const injectedPlatform = normalized['x_platform'] || '';
+  const rawPlatform = injectedPlatform
+    ? String(injectedPlatform).trim()
+    : String(extractField(normalized, fieldMap.platform) || '').trim();
+  const platform = injectedPlatform ? String(injectedPlatform).trim() : normalizePlatform(rawPlatform);
   
   // Extract campaign and detect type
   const campaign = String(extractField(normalized, fieldMap.campaign) || '').trim();
   const campaignType = detectCampaignType(campaign);
   
-  // Validate required fields
-  if (!parsedDate || !platform || !campaign) {
-    console.warn('Linha inválida - faltando dados obrigatórios:', { date: rawDateValue, platform: rawPlatform, campaign });
-    return null; // Skip invalid rows
+  // Skip rows missing date only — we always have a platform now thanks to injection
+  if (!parsedDate) {
+    return null;
   }
   
   return {
@@ -287,21 +293,47 @@ function formatPercent(value) {
 }
 
 function parseDate(value) {
+  // Already a valid Date object
   if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
-  if (typeof value === 'number') return new Date(value);
+
+  // Excel serial number (integer like 45291 = Jan 1, 2024)
+  // Excel epoch: Dec 30, 1899. JS: Jan 1, 1970.
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    if (value > 25000) {
+      // Treat as Excel serial date
+      const excelEpoch = new Date(1899, 11, 30); // Dec 30, 1899
+      const ms = excelEpoch.getTime() + value * 86400000;
+      const d = new Date(ms);
+      if (!Number.isNaN(d.getTime()) && d.getFullYear() > 1990) return d;
+    }
+    // Fallback: treat as JS timestamp
+    const d = new Date(value);
+    if (!Number.isNaN(d.getTime())) return d;
+    return null;
+  }
+
   if (typeof value !== 'string' || !value.trim()) return null;
 
   const normalized = value.trim();
-  const iso = normalized.replace(/\s+/g, 'T');
-  const parsed = new Date(iso);
-  if (!Number.isNaN(parsed.getTime())) return parsed;
 
-  const parts = normalized.split(/[-\/\.]/).map((part) => part.replace(/^0+/, '') || '0');
+  // ISO format or datetime with space
+  const iso = normalized.replace(/\s+/, 'T');
+  const parsed = new Date(iso);
+  if (!Number.isNaN(parsed.getTime()) && parsed.getFullYear() > 1990) return parsed;
+
+  // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+  const parts = normalized.split(/[-\/\.]/).map((p) => p.replace(/^0+/, '') || '0');
   if (parts.length === 3) {
     const [a, b, c] = parts.map(Number);
-    if (a > 31) return new Date(a, b - 1, c);
-    return new Date(c, b - 1, a);
+    if (a > 31) { // YYYY-MM-DD
+      const d = new Date(a, b - 1, c);
+      if (!Number.isNaN(d.getTime())) return d;
+    } else { // DD-MM-YYYY
+      const d = new Date(c, b - 1, a);
+      if (!Number.isNaN(d.getTime())) return d;
+    }
   }
+
   return null;
 }
 
@@ -806,8 +838,8 @@ function renderPieCharts() {
 
   const pieConfig = (elementId, data, title) => {
     const ctx = document.getElementById(elementId);
-    if (!ctx) return null; // Verificar se elemento existe
-    
+    if (!ctx) return null;
+
     try {
       return new Chart(ctx, {
         type: 'doughnut',
@@ -816,21 +848,55 @@ function renderPieCharts() {
           datasets: [
             {
               data,
-              backgroundColor: ['#4169ff', '#5ad0ff', '#8b5cf6', '#f97316'],
-              borderWidth: 0
+              backgroundColor: ['#4d8cff', '#4dd7c4', '#a78bfa', '#fb923c'],
+              hoverBackgroundColor: ['#6ba3ff', '#6fe4d5', '#b49dfc', '#fca86d'],
+              borderWidth: 3,
+              borderColor: '#0c1428',
+              hoverBorderColor: '#0c1428',
+              hoverOffset: 8,
+              borderRadius: 5,
+              spacing: 2
             }
           ]
         },
         options: {
           responsive: true,
+          maintainAspectRatio: true,
+          cutout: '68%',
+          animation: {
+            animateRotate: true,
+            animateScale: false,
+            duration: 600,
+            easing: 'easeInOutQuart'
+          },
           plugins: {
-            legend: { position: 'bottom', labels: { color: '#cbd4ef', boxWidth: 12 } },
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#8fa8d4',
+                boxWidth: 10,
+                boxHeight: 10,
+                borderRadius: 3,
+                useBorderRadius: true,
+                padding: 14,
+                font: { size: 12, family: 'Inter, system-ui, sans-serif' }
+              }
+            },
             tooltip: {
+              backgroundColor: 'rgba(7, 13, 31, 0.96)',
+              borderColor: 'rgba(255,255,255,0.1)',
+              borderWidth: 1,
+              titleColor: '#e9f0ff',
+              bodyColor: '#8fa8d4',
+              padding: 12,
+              cornerRadius: 10,
               callbacks: {
                 label(context) {
                   const value = context.parsed;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
                   const formattedValue = title === 'Investimento' ? formatCurrency(value) : value.toLocaleString('pt-BR');
-                  return `${context.label}: ${formattedValue}`;
+                  return `  ${context.label}: ${formattedValue} (${pct}%)`;
                 }
               }
             }
@@ -947,7 +1013,7 @@ function changePage(newPage) {
     });
     
     // Show selected page
-    const targetPage = document.querySelector(`[data-page="${newPage}"]`);
+    const targetPage = document.querySelector(`.page-content[data-page="${newPage}"]`);
     if (targetPage) targetPage.style.display = 'flex';
     
     // Update topbar
@@ -1036,25 +1102,48 @@ function loadFileData(file) {
   }
 }
 
+// ─── Central re-render: updates whichever page is currently active ───────────
+function renderCurrentPage() {
+  if (activePage === 'dashboard') {
+    updateDashboard();
+  } else if (activePage === 'daily') {
+    clearTimeSeriesCharts();
+    renderDailyPage();
+  } else if (['google', 'meta', 'tiktok'].includes(activePage)) {
+    clearTimeSeriesCharts();
+    renderPlatformPage(activePage);
+  }
+}
+
+// ─── Platform / Channel sidebar buttons ──────────────────────────────────────
+// Each .platform-btn either navigates to a dedicated page (if it has data-page)
+// or resets to the full dashboard ("Todos").
 platformButtons.forEach((button) => {
   button.addEventListener('click', () => {
-    platformButtons.forEach((btn) => btn.classList.remove('active'));
-    button.classList.add('active');
-    activePlatform = button.dataset.platform;
-    updateDashboard();
+    const targetPage = button.dataset.page;   // e.g. "google", undefined for "Todos"
+    if (targetPage) {
+      // Navigate to the platform-specific page
+      changePage(targetPage);
+    } else {
+      // "Todos" → always go back to the main dashboard
+      changePage('dashboard');
+    }
   });
 });
 
+// ─── Menu toggle ─────────────────────────────────────────────────────────────
 menuToggleBtn.addEventListener('click', () => {
   const isClosed = appShell.classList.toggle('sidebar-closed');
-  menuToggleBtn.textContent = isClosed ? 'Abrir menu' : 'Fechar menu';
+  menuToggleBtn.textContent = isClosed ? '☰' : '✕';
 });
 
+// ─── File upload ─────────────────────────────────────────────────────────────
 fileInput.addEventListener('change', (event) => {
   const file = event.target.files[0];
   if (file) loadFileData(file);
 });
 
+// ─── Export CSV ──────────────────────────────────────────────────────────────
 downloadBtn.addEventListener('click', () => {
   const { filtered } = aggregateData(activePlatform);
   if (!filtered.length) return;
@@ -1082,6 +1171,7 @@ downloadBtn.addEventListener('click', () => {
   URL.revokeObjectURL(link.href);
 });
 
+// ─── Period date filter buttons ───────────────────────────────────────────────
 function setDateFilterRange(option) {
   activePeriod = option === 'custom' ? null : option;
   periodButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.period === option));
@@ -1093,7 +1183,7 @@ function setDateFilterRange(option) {
     endDateInput.value = '';
   }
 
-  updateDashboard();
+  renderCurrentPage();
 }
 
 periodButtons.forEach((button) => {
@@ -1104,24 +1194,16 @@ periodButtons.forEach((button) => {
   input.addEventListener('change', () => {
     activePeriod = null;
     periodButtons.forEach((btn) => btn.classList.remove('active'));
-    updateDashboard();
+    renderCurrentPage();
   });
 });
 
-// Navigation buttons
+// ─── Navigation (main pages: Dashboard, Acompanhamento Diário) ───────────────
 navButtons.forEach((button) => {
   button.addEventListener('click', () => changePage(button.dataset.page));
 });
 
-// Platform page buttons
-platformPageButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    const page = button.dataset.page;
-    changePage(page);
-  });
-});
-
-// Campaign type buttons
+// ─── Campaign type filter ─────────────────────────────────────────────────────
 campaignButtons.forEach((button) => {
   button.addEventListener('click', () => {
     campaignButtons.forEach((btn) => btn.classList.remove('active'));
@@ -1131,4 +1213,59 @@ campaignButtons.forEach((button) => {
   });
 });
 
-updateDashboard();
+async function autoLoadFakeData() {
+  // Map filename fragment → canonical platform name to inject into rows
+  const files = [
+    { url: 'Base_Fake/Base_Ficticia_GoogleAds_Display&Video.xlsx', platform: 'Google Ads' },
+    { url: 'Base_Fake/Base_Ficticia_GoogleAds_Search.xlsx',         platform: 'Google Ads' },
+    { url: 'Base_Fake/Base_Ficticia_MetaAds.xlsx',                  platform: 'Meta Ads'   },
+    { url: 'Base_Fake/Base_Ficticia_TiktokAds.xlsx',                platform: 'TikTok Ads' }
+  ];
+
+  fileStatus.textContent = 'Carregando dados…';
+  
+  try {
+    let allRows = [];
+    
+    for (const { url, platform } of files) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          console.warn(`Não foi possível carregar ${url}: ${response.statusText}`);
+          continue;
+        }
+        const data = await response.arrayBuffer();
+        // cellDates: true → XLSX returns Date objects instead of serial numbers
+        const workbook = XLSX.read(new Uint8Array(data), { type: 'array', cellDates: true });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        // Inject canonical platform so normalizeRow always gets a guaranteed match
+        // Key must survive normalizeHeader(): 'x_platform' → 'x_platform' ✓
+        const tagged = rows.map((row) => ({ ...row, x_platform: platform }));
+        allRows = allRows.concat(tagged);
+      } catch (e) {
+        console.error(`Erro ao buscar ${url}:`, e);
+      }
+    }
+    
+    if (allRows.length > 0) {
+      rawData = normalizeRows(allRows);
+      validateData(rawData);
+      fileStatus.textContent = `${rawData.length} registros carregados`;
+      
+      activePlatform = 'all';
+      platformButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.platform === 'all'));
+      updateDashboard();
+    } else {
+      fileStatus.textContent = 'Nenhum dado encontrado';
+      updateDashboard();
+    }
+  } catch (err) {
+    console.error('Erro geral ao carregar arquivos:', err);
+    fileStatus.textContent = 'Erro ao carregar bases';
+    updateDashboard();
+  }
+}
+
+// Inicializar carregando os dados fakes do servidor local
+autoLoadFakeData();
