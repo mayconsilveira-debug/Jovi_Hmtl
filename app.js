@@ -532,32 +532,38 @@ function groupByDate(platform = 'all') {
 }
 
 function renderDailyPage() {
-  const dailyData = groupByDate(activePlatform);
-  if (!dailyData.length) {
-    document.getElementById('dailyKpiCards').innerHTML = '<p>Nenhum dado disponível</p>';
-    return;
+  try {
+    const dailyData = groupByDate(activePlatform);
+    const dailyKpiCards = document.getElementById('dailyKpiCards');
+    if (!dailyKpiCards) return;
+    
+    if (!dailyData.length) {
+      dailyKpiCards.innerHTML = '<p>Nenhum dado disponível</p>';
+      return;
+    }
+    
+    const latest = dailyData[dailyData.length - 1];
+    const cards = [
+      { label: 'Investimento', value: formatCurrency(latest.cost) },
+      { label: 'Impressões', value: latest.impressions.toLocaleString('pt-BR') },
+      { label: 'Cliques', value: latest.clicks.toLocaleString('pt-BR') },
+      { label: 'CPM', value: formatCurrency(latest.cpm) },
+      { label: 'CPC', value: formatCurrency(latest.cpc) },
+      { label: 'CTR', value: formatPercent(latest.ctr) }
+    ];
+    
+    dailyKpiCards.innerHTML = cards.map((card) => `
+      <div class="kpi-card">
+        <p>${card.label}</p>
+        <strong>${card.value}</strong>
+      </div>
+    `).join('');
+    
+    // Render time series charts
+    renderTimeSeriesCharts(dailyData);
+  } catch (error) {
+    console.error('Erro ao renderizar pagina diaria:', error);
   }
-  
-  const latest = dailyData[dailyData.length - 1];
-  const cards = [
-    { label: 'Investimento', value: formatCurrency(latest.cost) },
-    { label: 'Impressões', value: latest.impressions.toLocaleString('pt-BR') },
-    { label: 'Cliques', value: latest.clicks.toLocaleString('pt-BR') },
-    { label: 'CPM', value: formatCurrency(latest.cpm) },
-    { label: 'CPC', value: formatCurrency(latest.cpc) },
-    { label: 'CTR', value: formatPercent(latest.ctr) }
-  ];
-  
-  const dailyKpiCards = document.getElementById('dailyKpiCards');
-  dailyKpiCards.innerHTML = cards.map((card) => `
-    <div class="kpi-card">
-      <p>${card.label}</p>
-      <strong>${card.value}</strong>
-    </div>
-  `).join('');
-  
-  // Render time series charts
-  renderTimeSeriesCharts(dailyData);
 }
 
 function renderTimeSeriesCharts(dailyData) {
@@ -566,7 +572,8 @@ function renderTimeSeriesCharts(dailyData) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
     
-    return new Chart(ctx, {
+    try {
+      return new Chart(ctx, {
       type: 'bar',
       data: {
         labels,
@@ -606,7 +613,11 @@ function renderTimeSeriesCharts(dailyData) {
           y1: { position: 'right', ticks: { color: '#ff6b6b' }, grid: { drawOnChartArea: false } }
         }
       }
-    });
+      });
+    } catch (error) {
+      console.error(`Erro ao criar grafico ${canvasId}:`, error);
+      return null;
+    }
   };
   
   const investmentChart = barChartConfig('investmentChart', dailyData.map((d) => d.cost), [], 'Investimento', '', 'Custo');
@@ -629,54 +640,63 @@ function renderTimeSeriesCharts(dailyData) {
 }
 
 function renderPlatformPage(page) {
-  const platformMap = { google: 'Google Ads', meta: 'Meta Ads', tiktok: 'TikTok Ads' };
-  const platform = platformMap[page];
-  const dailyData = groupByDate(platform);
-  
-  if (!dailyData.length) {
-    document.getElementById(`${page}KpiCards`).innerHTML = '<p>Nenhum dado disponível</p>';
-    return;
+  try {
+    const platformMap = { google: 'Google Ads', meta: 'Meta Ads', tiktok: 'TikTok Ads' };
+    const platform = platformMap[page];
+    const dailyData = groupByDate(platform);
+    
+    const kpiContainer = document.getElementById(`${page}KpiCards`);
+    if (!kpiContainer) return;
+    
+    if (!dailyData.length) {
+      kpiContainer.innerHTML = '<p>Nenhum dado disponível</p>';
+      return;
+    }
+    
+    // Render KPIs
+    const { totals } = aggregateAdvancedData(platform);
+    const cpm = totals.impressions ? totals.cost / (totals.impressions / 1000) : 0;
+    const cpc = totals.clicks ? totals.cost / totals.clicks : 0;
+    const ctr = totals.impressions ? totals.clicks / totals.impressions : 0;
+    
+    const cards = [
+      { label: 'Investimento', value: formatCurrency(totals.cost) },
+      { label: 'Impressões', value: totals.impressions.toLocaleString('pt-BR') },
+      { label: 'CPM', value: formatCurrency(cpm) },
+      { label: 'Cliques', value: totals.clicks.toLocaleString('pt-BR') },
+      { label: 'CPC', value: formatCurrency(cpc) },
+      { label: 'CTR', value: formatPercent(ctr) }
+    ];
+    
+    kpiContainer.innerHTML = cards.map((card) => `
+      <div class="kpi-card">
+        <p>${card.label}</p>
+        <strong>${card.value}</strong>
+      </div>
+    `).join('');
+    
+    // Render time series charts
+    renderPlatformTimeSeriesCharts(page, dailyData);
+    
+    // Render summary table
+    const latest = dailyData[dailyData.length - 1];
+    const tableId = `${page}Table`;
+    const tableBody = document.getElementById(tableId);
+    if (tableBody) {
+      tableBody.innerHTML = `
+        <tr>
+          <td>${formatCurrency(totals.cost)}</td>
+          <td>${totals.impressions.toLocaleString('pt-BR')}</td>
+          <td>${formatCurrency(cpm)}</td>
+          <td>${totals.clicks.toLocaleString('pt-BR')}</td>
+          <td>${formatCurrency(cpc)}</td>
+          ${page === 'tiktok' ? `<td>${totals.videoViews.toLocaleString('pt-BR')}</td><td>${formatPercent(totals.videoViews ? totals.videoViews / totals.impressions : 0)}</td>` : ''}
+        </tr>
+      `;
+    }
+  } catch (error) {
+    console.error(`Erro ao renderizar pagina ${page}:`, error);
   }
-  
-  // Render KPIs
-  const { totals } = aggregateAdvancedData(platform);
-  const cpm = totals.impressions ? totals.cost / (totals.impressions / 1000) : 0;
-  const cpc = totals.clicks ? totals.cost / totals.clicks : 0;
-  const ctr = totals.impressions ? totals.clicks / totals.impressions : 0;
-  
-  const cards = [
-    { label: 'Investimento', value: formatCurrency(totals.cost) },
-    { label: 'Impressões', value: totals.impressions.toLocaleString('pt-BR') },
-    { label: 'CPM', value: formatCurrency(cpm) },
-    { label: 'Cliques', value: totals.clicks.toLocaleString('pt-BR') },
-    { label: 'CPC', value: formatCurrency(cpc) },
-    { label: 'CTR', value: formatPercent(ctr) }
-  ];
-  
-  const kpiContainer = document.getElementById(`${page}KpiCards`);
-  kpiContainer.innerHTML = cards.map((card) => `
-    <div class="kpi-card">
-      <p>${card.label}</p>
-      <strong>${card.value}</strong>
-    </div>
-  `).join('');
-  
-  // Render time series charts
-  renderPlatformTimeSeriesCharts(page, dailyData);
-  
-  // Render summary table
-  const latest = dailyData[dailyData.length - 1];
-  const tableId = `${page}Table`;
-  document.getElementById(tableId).innerHTML = `
-    <tr>
-      <td>${formatCurrency(totals.cost)}</td>
-      <td>${totals.impressions.toLocaleString('pt-BR')}</td>
-      <td>${formatCurrency(cpm)}</td>
-      <td>${totals.clicks.toLocaleString('pt-BR')}</td>
-      <td>${formatCurrency(cpc)}</td>
-      ${page === 'tiktok' ? `<td>${totals.videoViews.toLocaleString('pt-BR')}</td><td>${formatPercent(totals.videoViews ? totals.videoViews / totals.impressions : 0)}</td>` : ''}
-    </tr>
-  `;
 }
 
 function renderPlatformTimeSeriesCharts(page, dailyData) {
@@ -686,7 +706,8 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return null;
     
-    return new Chart(ctx, {
+    try {
+      return new Chart(ctx, {
       type: 'bar',
       data: {
         labels,
@@ -723,7 +744,11 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
           y1: { position: 'right', ticks: { color: '#ff6b6b' }, grid: { drawOnChartArea: false } }
         }
       }
-    });
+      });
+    } catch (error) {
+      console.error(`Erro ao criar grafico ${canvasId}:`, error);
+      return null;
+    }
   };
   
   const investChart = barChartConfig(`${page}InvestmentChart`, dailyData.map((d) => d.cost), [], 'Investimento', '');
@@ -781,34 +806,41 @@ function renderPieCharts() {
 
   const pieConfig = (elementId, data, title) => {
     const ctx = document.getElementById(elementId);
-    return new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [
-          {
-            data,
-            backgroundColor: ['#4169ff', '#5ad0ff', '#8b5cf6', '#f97316'],
-            borderWidth: 0
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom', labels: { color: '#cbd4ef', boxWidth: 12 } },
-          tooltip: {
-            callbacks: {
-              label(context) {
-                const value = context.parsed;
-                const formattedValue = title === 'Investimento' ? formatCurrency(value) : value.toLocaleString('pt-BR');
-                return `${context.label}: ${formattedValue}`;
+    if (!ctx) return null; // Verificar se elemento existe
+    
+    try {
+      return new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [
+            {
+              data,
+              backgroundColor: ['#4169ff', '#5ad0ff', '#8b5cf6', '#f97316'],
+              borderWidth: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#cbd4ef', boxWidth: 12 } },
+            tooltip: {
+              callbacks: {
+                label(context) {
+                  const value = context.parsed;
+                  const formattedValue = title === 'Investimento' ? formatCurrency(value) : value.toLocaleString('pt-BR');
+                  return `${context.label}: ${formattedValue}`;
+                }
               }
             }
           }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error(`Erro ao renderizar gráfico ${elementId}:`, error);
+      return null;
+    }
   };
 
   [
@@ -817,14 +849,28 @@ function renderPieCharts() {
     { id: 'clicksPie', data: clicksData, label: 'Cliques' },
     { id: 'videoViewsPie', data: videoData, label: 'Video Views' }
   ].forEach((config) => {
-    if (config.data.every((value) => value === 0)) {
+    try {
       const canvas = document.getElementById(config.id);
-      const parent = canvas.closest('.pie-card');
-      parent.querySelector('.chart-card-header p').textContent = 'Nenhum dado disponível para este gráfico.';
-      return;
+      
+      // Se canvas não existe (em outra página), pular
+      if (!canvas) return;
+      
+      if (config.data.every((value) => value === 0)) {
+        const parent = canvas.closest('.pie-card');
+        if (parent) {
+          const descElement = parent.querySelector('.chart-card-header p');
+          if (descElement) {
+            descElement.textContent = 'Nenhum dado disponível para este gráfico.';
+          }
+        }
+        return;
+      }
+      
+      const chart = pieConfig(config.id, config.data, config.label);
+      if (chart) pieCharts.push(chart);
+    } catch (error) {
+      console.error(`Erro ao processar gráfico ${config.id}:`, error);
     }
-    const chart = pieConfig(config.id, config.data, config.label);
-    if (chart) pieCharts.push(chart);
   });
 }
 
@@ -888,64 +934,76 @@ const pageConfig = {
 };
 
 function changePage(newPage) {
-  activePage = newPage;
-  
-  // Hide all pages
-  document.querySelectorAll('.page-content').forEach((page) => {
-    page.style.display = 'none';
-  });
-  
-  // Show selected page
-  const targetPage = document.querySelector(`[data-page="${newPage}"]`);
-  if (targetPage) targetPage.style.display = 'flex';
-  
-  // Update topbar
-  const config = pageConfig[newPage];
-  pageEyebrow.textContent = config.eyebrow;
-  pageTitle.textContent = config.title;
-  pageDesc.textContent = config.desc;
-  
-  // Update nav buttons
-  navButtons.forEach((btn) => btn.classList.remove('active'));
-  document.querySelector(`.nav-btn[data-page="${newPage}"]`)?.classList.add('active');
-  
-  // Update platform buttons if on platform page
-  if (['google', 'meta', 'tiktok'].includes(newPage)) {
-    platformButtons.forEach((btn) => btn.classList.remove('active'));
-    const platformMap = { google: 'Google Ads', meta: 'Meta Ads', tiktok: 'TikTok Ads' };
-    document.querySelector(`[data-platform="${platformMap[newPage]}"]`)?.classList.add('active');
-    activePlatform = platformMap[newPage];
-  } else {
-    activePlatform = 'all';
-    document.querySelector('[data-platform="all"]')?.classList.add('active');
-  }
-  
-  // Reset campaign filter when changing pages
-  if (newPage !== 'dashboard') {
-    activeCampaign = 'all';
-    campaignButtons.forEach((btn) => btn.classList.remove('active'));
-    document.querySelector('[data-campaign="all"]')?.classList.add('active');
-  }
-  
-  // Render content for the page
-  clearTimeSeriesCharts();
-  clearPieCharts();
-  
-  if (newPage === 'dashboard') {
-    updateDashboard();
-  } else if (newPage === 'daily') {
-    renderDailyPage();
-  } else if (['google', 'meta', 'tiktok'].includes(newPage)) {
-    renderPlatformPage(newPage);
+  try {
+    // Limpar gráficos ANTES de mudar página
+    clearTimeSeriesCharts();
+    clearPieCharts();
+    
+    activePage = newPage;
+    
+    // Hide all pages
+    document.querySelectorAll('.page-content').forEach((page) => {
+      page.style.display = 'none';
+    });
+    
+    // Show selected page
+    const targetPage = document.querySelector(`[data-page="${newPage}"]`);
+    if (targetPage) targetPage.style.display = 'flex';
+    
+    // Update topbar
+    const config = pageConfig[newPage];
+    if (config) {
+      pageEyebrow.textContent = config.eyebrow;
+      pageTitle.textContent = config.title;
+      pageDesc.textContent = config.desc;
+    }
+    
+    // Update nav buttons
+    navButtons.forEach((btn) => btn.classList.remove('active'));
+    document.querySelector(`.nav-btn[data-page="${newPage}"]`)?.classList.add('active');
+    
+    // Update platform buttons if on platform page
+    if (['google', 'meta', 'tiktok'].includes(newPage)) {
+      platformButtons.forEach((btn) => btn.classList.remove('active'));
+      const platformMap = { google: 'Google Ads', meta: 'Meta Ads', tiktok: 'TikTok Ads' };
+      document.querySelector(`[data-platform="${platformMap[newPage]}"]`)?.classList.add('active');
+      activePlatform = platformMap[newPage];
+    } else {
+      activePlatform = 'all';
+      platformButtons.forEach((btn) => btn.classList.remove('active'));
+      document.querySelector('[data-platform="all"]')?.classList.add('active');
+    }
+    
+    // Reset campaign filter when changing pages
+    if (newPage !== 'dashboard') {
+      activeCampaign = 'all';
+      campaignButtons.forEach((btn) => btn.classList.remove('active'));
+      document.querySelector('[data-campaign="all"]')?.classList.add('active');
+    }
+    
+    // Render content for the page
+    if (newPage === 'dashboard') {
+      updateDashboard();
+    } else if (newPage === 'daily') {
+      renderDailyPage();
+    } else if (['google', 'meta', 'tiktok'].includes(newPage)) {
+      renderPlatformPage(newPage);
+    }
+  } catch (error) {
+    console.error(`Erro ao mudar para página ${newPage}:`, error);
   }
 }
 
 function updateDashboard() {
-  renderKPIs();
-  clearPieCharts();
-  renderPieCharts();
-  renderChannelTable();
-  renderInsights();
+  try {
+    renderKPIs();
+    clearPieCharts();
+    renderPieCharts();
+    renderChannelTable();
+    renderInsights();
+  } catch (error) {
+    console.error('Erro ao atualizar dashboard:', error);
+  }
 }
 
 function loadFileData(file) {
