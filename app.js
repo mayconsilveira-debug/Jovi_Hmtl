@@ -1100,7 +1100,7 @@ function loadFileData(file) {
     if (file.name.toLowerCase().endsWith('.csv')) {
       rows = parseCSV(data);
     } else {
-      const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
+      const workbook = XLSX.read(new Uint8Array(data), { type: 'array', cellDates: true });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
     }
