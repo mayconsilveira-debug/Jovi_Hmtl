@@ -1067,9 +1067,9 @@ function changePage(newPage) {
     // Update topbar
     const config = pageConfig[newPage];
     if (config) {
-      pageEyebrow.textContent = config.eyebrow;
-      pageTitle.textContent = config.title;
-      pageDesc.textContent = config.desc;
+      if (pageEyebrow) pageEyebrow.textContent = config.eyebrow;
+      if (pageTitle) pageTitle.textContent = config.title;
+      if (pageDesc) pageDesc.textContent = config.desc;
     }
     
     // Update nav buttons
