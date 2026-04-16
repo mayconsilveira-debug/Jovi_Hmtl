@@ -52,7 +52,8 @@ const fieldMap = {
   completeViews: [
     'complete_views', 'complete views', 'completeviews', 'complete_view', 'complete view',
     'views_100', 'views 100%', 'thruplay actions', 'thruplay_actions', 'thruplay', 'complete_views_total', 'complete views total',
-    'video watches at 100%', 'video_watches_at_100', 'video views at 100%', 'video_views_at_100'
+    'video watches at 100%', 'video_watches_at_100', 'video views at 100%', 'video_views_at_100',
+    'video_watches_at_100_', 'video_views_at_100_'
   ],
   frequency: ['frequencia', 'frequency', 'freq', 'frequência', 'frequencia_media', 'frequencia media'],
   higherReach: ['higher_reach', 'higher reach', 'reach', 'alcance', 'alcance_total', 'alcance total']
