@@ -767,7 +767,9 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
     return;
   }
   
+  console.log('Dados recebidos:', dailyData);
   const labels = dailyData.map((d) => formatDateBR(d.date));
+  console.log('Labels formatados:', labels);
   
   const barChartConfig = (canvasId, barData, lineData, barLabel, lineLabel) => {
     const ctx = document.getElementById(canvasId);
