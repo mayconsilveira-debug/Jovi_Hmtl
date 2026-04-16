@@ -1014,17 +1014,123 @@ function renderChannelTable() {
 }
 
 function renderInsights() {
-  const { totals, totalVideoViews, totalCompleteViews } = aggregateAdvancedData(activePlatform);
+  const { totals, totalVideoViews, totalCompleteViews, averageFrequency } = aggregateAdvancedData(activePlatform);
   const cpm = totals.impressions ? totals.cost / (totals.impressions / 1000) : 0;
   const cpv = totalVideoViews ? totals.cost / totalVideoViews : 0;
-  const insights = [
-    `Investimento total: ${formatCurrency(totals.cost)}`,
-    `CPM médio: ${formatCurrency(cpm)}`,
-    `CPV médio: ${formatCurrency(cpv)}`,
-    `Total Video Views: ${totalVideoViews.toLocaleString('pt-BR')}`,
-    `Complete Views: ${totalCompleteViews.toLocaleString('pt-BR')}`
+  const ctr = totals.impressions ? (totals.clicks / totals.impressions) * 100 : 0;
+  const vtr = totals.impressions ? (totalVideoViews / totals.impressions) * 100 : 0;
+  const cpc = totals.clicks ? totals.cost / totals.clicks : 0;
+  const completeRate = totalVideoViews ? (totalCompleteViews / totalVideoViews) * 100 : 0;
+  
+  // Análise por plataforma
+  const platformData = groupByPlatform(activePlatform);
+  const platformInsights = [];
+  
+  platformData.forEach(p => {
+    const pCtr = p.impressions ? (p.clicks / p.impressions) * 100 : 0;
+    const pCpm = p.impressions ? p.cost / (p.impressions / 1000) : 0;
+    platformInsights.push({
+      platform: p.platform,
+      ctr: pCtr,
+      cpm: pCpm,
+      cost: p.cost,
+      impressions: p.impressions
+    });
+  });
+  
+  // Ordenar por CTR para identificar melhor e pior performance
+  platformInsights.sort((a, b) => b.ctr - a.ctr);
+  const bestPlatform = platformInsights[0];
+  const worstPlatform = platformInsights[platformInsights.length - 1];
+  
+  // Gerar insights positivos
+  const positivos = [];
+  const negativos = [];
+  const melhorias = [];
+  
+  // Pontos positivos
+  if (ctr > 1.0) {
+    positivos.push(`✅ CTR de ${ctr.toFixed(2)}% está acima da média do mercado (1%), indicando boa relevância dos anúncios`);
+  }
+  if (completeRate > 30) {
+    positivos.push(`✅ Taxa de visualização completa de ${completeRate.toFixed(1)}% mostra conteúdo engajador`);
+  }
+  if (bestPlatform && bestPlatform.ctr > 1.5) {
+    positivos.push(`✅ ${bestPlatform.platform} apresenta excelente performance com CTR de ${bestPlatform.ctr.toFixed(2)}%`);
+  }
+  if (cpc < 5) {
+    positivos.push(`✅ CPC baixo de ${formatCurrency(cpc)} indica custo eficiente por clique`);
+  }
+  if (vtr > 50) {
+    positivos.push(`✅ VTR de ${vtr.toFixed(1)}% demonstra alto interesse no conteúdo de vídeo`);
+  }
+  
+  // Pontos negativos
+  if (ctr < 0.5) {
+    negativos.push(`⚠️ CTR de ${ctr.toFixed(2)}% está abaixo do esperado, considere revisar criativos`);
+  }
+  if (worstPlatform && worstPlatform.ctr < 0.8) {
+    negativos.push(`⚠️ ${worstPlatform.platform} apresenta CTR baixo (${worstPlatform.ctr.toFixed(2)}%), avaliar pausar campanhas`);
+  }
+  if (averageFrequency > 3) {
+    negativos.push(`⚠️ Frequência média de ${averageFrequency.toFixed(1)}x pode indicar saturação do público`);
+  }
+  if (cpm > 150) {
+    negativos.push(`⚠️ CPM elevado de ${formatCurrency(cpm)} sugere segmentação muito restrita`);
+  }
+  if (cpc > 10) {
+    negativos.push(`⚠️ CPC de ${formatCurrency(cpc)} está alto, verificar qualidade do tráfego`);
+  }
+  if (completeRate < 20 && totalVideoViews > 1000) {
+    negativos.push(`⚠️ Taxa de completação baixa (${completeRate.toFixed(1)}%), vídeos podem estar longos demais`);
+  }
+  
+  // Sugestões de melhorias
+  if (worstPlatform && worstPlatform.cost > totals.cost * 0.3 && worstPlatform.ctr < 1) {
+    melhorias.push(`💡 Reduzir investimento em ${worstPlatform.platform} e realocar para ${bestPlatform.platform}`);
+  }
+  if (averageFrequency > 2.5) {
+    melhorias.push(`💡 Ampliar público-alvo para reduzir frequência e evitar saturação`);
+  }
+  if (ctr < 1) {
+    melhorias.push(`💡 Testar novos criativos com chamadas de ação mais claras`);
+  }
+  if (cpm > 100) {
+    melhorias.push(`💡 Expandir segmentação para reduzir CPM e aumentar alcance`);
+  }
+  if (totalVideoViews > 0 && vtr < 30) {
+    melhorias.push(`💡 Otimizar primeiros 3 segundos dos vídeos para reter atenção`);
+  }
+  if (completeRate < 40 && totalVideoViews > 1000) {
+    melhorias.push(`💡 Criar versões mais curtas dos vídeos (15-30s) para aumentar completação`);
+  }
+  melhorias.push(`💡 Monitorar métricas diariamente e ajustar orçamento entre plataformas`);
+  
+  // Selecionar top 2 positivos, top 2 negativos e top 3 melhorias
+  const selectedPositivos = positivos.slice(0, 2);
+  const selectedNegativos = negativos.slice(0, 2);
+  const selectedMelhorias = melhorias.slice(0, 3);
+  
+  // Se não houver suficientes, preencher com genéricos
+  if (selectedPositivos.length === 0) {
+    selectedPositivos.push(`✅ Investimento total de ${formatCurrency(totals.cost)} distribuído entre ${platformData.length} plataformas`);
+    selectedPositivos.push(`✅ Alcance total de ${totals.impressions.toLocaleString('pt-BR')} impressões`);
+  }
+  if (selectedNegativos.length === 0) {
+    selectedNegativos.push(`⚠️ Nenhum ponto crítico identificado, manter monitoramento`);
+  }
+  if (selectedMelhorias.length === 0) {
+    selectedMelhorias.push(`💡 Continuar estratégia atual e testar novos formatos de criativo`);
+  }
+  
+  // Combinar todos os insights
+  const allInsights = [
+    ...selectedPositivos,
+    ...selectedNegativos,
+    ...selectedMelhorias
   ];
-  insightsList.innerHTML = insights.map((text) => `<li>${text}</li>`).join('');
+  
+  insightsList.innerHTML = allInsights.map((text) => `<li>${text}</li>`).join('');
 }
 
 function clearPieCharts() {
