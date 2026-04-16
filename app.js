@@ -746,11 +746,24 @@ function renderPlatformPage(page) {
 }
 
 function renderPlatformTimeSeriesCharts(page, dailyData) {
+  if (!dailyData || dailyData.length === 0) {
+    console.warn(`Sem dados para renderizar gráficos da plataforma ${page}`);
+    return;
+  }
+  
   const labels = dailyData.map((d) => d.date);
   
   const barChartConfig = (canvasId, barData, lineData, barLabel, lineLabel) => {
     const ctx = document.getElementById(canvasId);
-    if (!ctx) return null;
+    if (!ctx) {
+      console.warn(`Canvas ${canvasId} não encontrado`);
+      return null;
+    }
+    
+    if (!barData || barData.length === 0) {
+      console.warn(`Sem dados para o gráfico ${canvasId}`);
+      return null;
+    }
     
     try {
       return new Chart(ctx, {
