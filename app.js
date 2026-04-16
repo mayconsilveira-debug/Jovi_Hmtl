@@ -641,7 +641,8 @@ function renderTimeSeriesCharts(dailyData) {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
+        aspectRatio: 2,
         interaction: { intersect: false },
         plugins: {
           legend: { position: 'top', labels: { color: '#cbd4ef', usePointStyle: true } }
@@ -777,7 +778,8 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
+        aspectRatio: 2,
         interaction: { intersect: false },
         plugins: { legend: { labels: { color: '#cbd4ef' } } },
         scales: {
@@ -870,7 +872,8 @@ function renderPieCharts() {
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false,
+          maintainAspectRatio: true,
+          aspectRatio: 1.5,
           cutout: '68%',
           animation: {
             animateRotate: true,
