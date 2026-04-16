@@ -768,7 +768,13 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
   }
   
   console.log('Dados recebidos:', dailyData);
-  const labels = dailyData.map((d) => formatDateBR(d.date));
+  console.log('Primeira data bruta:', dailyData[0]?.date);
+  console.log('Tipo da data:', typeof dailyData[0]?.date);
+  const labels = dailyData.map((d) => {
+    const formatted = formatDateBR(d.date);
+    console.log(`Formatando: ${d.date} -> ${formatted}`);
+    return formatted;
+  });
   console.log('Labels formatados:', labels);
   
   const barChartConfig = (canvasId, barData, lineData, barLabel, lineLabel) => {
