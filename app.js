@@ -593,6 +593,7 @@ function renderDailyPage() {
     
     // Render time series charts
     renderTimeSeriesCharts(dailyData);
+    forceChartResize();
   } catch (error) {
     console.error('Erro ao renderizar pagina diaria:', error);
   }
@@ -636,6 +637,7 @@ function renderTimeSeriesCharts(dailyData) {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         interaction: { intersect: false },
         plugins: {
           legend: { position: 'top', labels: { color: '#cbd4ef', usePointStyle: true } }
@@ -726,6 +728,8 @@ function renderPlatformPage(page) {
         </tr>
       `;
     }
+    
+    forceChartResize();
   } catch (error) {
     console.error(`Erro ao renderizar pagina ${page}:`, error);
   }
@@ -769,6 +773,7 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         interaction: { intersect: false },
         plugins: { legend: { labels: { color: '#cbd4ef' } } },
         scales: {
@@ -861,7 +866,7 @@ function renderPieCharts() {
         },
         options: {
           responsive: true,
-          maintainAspectRatio: true,
+          maintainAspectRatio: false,
           cutout: '68%',
           animation: {
             animateRotate: true,
@@ -991,6 +996,17 @@ function clearTimeSeriesCharts() {
   timeSeriesCharts.length = 0;
 }
 
+function forceChartResize() {
+  // Force resize all active charts after they're rendered
+  setTimeout(() => {
+    [...pieCharts, ...timeSeriesCharts].forEach(chart => {
+      if (chart && chart.resize) {
+        chart.resize();
+      }
+    });
+  }, 100);
+}
+
 const pageConfig = {
   dashboard: { title: 'Performance de Campanhas', eyebrow: 'Relatório Integrado', desc: 'Acompanhe investimento, receita, ROAS e conversão para as plataformas de advertising da JOVI.' },
   daily: { title: 'Acompanhamento Diário', eyebrow: 'Série Temporal', desc: 'Acompanhe o desempenho dia a dia com gráficos de série temporal.' },
@@ -1047,14 +1063,16 @@ function changePage(newPage) {
       document.querySelector('[data-campaign="all"]')?.classList.add('active');
     }
     
-    // Render content for the page
-    if (newPage === 'dashboard') {
-      updateDashboard();
-    } else if (newPage === 'daily') {
-      renderDailyPage();
-    } else if (['google', 'meta', 'tiktok'].includes(newPage)) {
-      renderPlatformPage(newPage);
-    }
+    // Render content for the page after a small delay to ensure DOM is ready
+    setTimeout(() => {
+      if (newPage === 'dashboard') {
+        updateDashboard();
+      } else if (newPage === 'daily') {
+        renderDailyPage();
+      } else if (['google', 'meta', 'tiktok'].includes(newPage)) {
+        renderPlatformPage(newPage);
+      }
+    }, 50); // Small delay to ensure page is visible and DOM is ready
   } catch (error) {
     console.error(`Erro ao mudar para página ${newPage}:`, error);
   }
@@ -1067,6 +1085,7 @@ function updateDashboard() {
     renderPieCharts();
     renderChannelTable();
     renderInsights();
+    forceChartResize();
   } catch (error) {
     console.error('Erro ao atualizar dashboard:', error);
   }
