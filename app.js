@@ -1571,33 +1571,33 @@ fileInput.addEventListener('change', (event) => {
   if (file) loadFileData(file);
 });
 
-// ─── Export CSV ──────────────────────────────────────────────────────────────
-downloadBtn.addEventListener('click', () => {
-  const { filtered } = aggregateData(activePlatform);
-  if (!filtered.length) return;
-
-  const headers = ['Campanha', 'Plataforma', 'Data', 'Investimento', 'Receita', 'Impressões', 'Cliques', 'Conversões'];
-  const rows = filtered.map((item) => [
-    item.campaign,
-    item.platform,
-    item.date instanceof Date ? formatAsDateValue(item.date) : item.date,
-    item.cost,
-    item.revenue,
-    item.impressions,
-    item.clicks,
-    item.conversions
-  ]);
-
-  const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'jovi-campanhas.csv';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(link.href);
-});
+// ─── Export CSV (desativado - botão removido) ─────────────────────────────────
+// downloadBtn.addEventListener('click', () => {
+//   const { filtered } = aggregateData(activePlatform);
+//   if (!filtered.length) return;
+//
+//   const headers = ['Campanha', 'Plataforma', 'Data', 'Investimento', 'Receita', 'Impressões', 'Cliques', 'Conversões'];
+//   const rows = filtered.map((item) => [
+//     item.campaign,
+//     item.platform,
+//     item.date instanceof Date ? formatAsDateValue(item.date) : item.date,
+//     item.cost,
+//     item.revenue,
+//     item.impressions,
+//     item.clicks,
+//     item.conversions
+//   ]);
+//
+//   const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
+//   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+//   const link = document.createElement('a');
+//   link.href = URL.createObjectURL(blob);
+//   link.download = 'jovi-campanhas.csv';
+//   document.body.appendChild(link);
+//   link.click();
+//   document.body.removeChild(link);
+//   URL.revokeObjectURL(link.href);
+// });
 
 // ─── Period date filter buttons ───────────────────────────────────────────────
 function setDateFilterRange(option) {
