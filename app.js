@@ -1044,16 +1044,7 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
         interaction: { intersect: false },
         plugins: { 
           legend: { 
-            display: true,
-            position: 'top',
-            align: 'center',
-            labels: { 
-              color: '#ffffff', 
-              font: { size: 12, weight: '500', family: 'Inter, system-ui, sans-serif' },
-              usePointStyle: true,
-              pointStyle: 'rect',
-              padding: 20
-            } 
+            display: false
           }
         },
         scales: {
