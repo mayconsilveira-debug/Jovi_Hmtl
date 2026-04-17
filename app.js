@@ -1151,7 +1151,20 @@ function renderPieCharts() {
           },
           plugins: {
             legend: {
-              display: false
+              display: true,
+              position: 'right',
+              labels: {
+                color: isLightTheme ? '#1e293b' : '#ffffff',
+                font: {
+                  size: 12,
+                  weight: '500',
+                  family: 'Inter, system-ui, sans-serif'
+                },
+                padding: 15,
+                usePointStyle: true,
+                pointStyle: 'circle',
+                boxWidth: 12
+              }
             },
             datalabels: {
               color: isLightTheme ? '#1e293b' : '#ffffff',
