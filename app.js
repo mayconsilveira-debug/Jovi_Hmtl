@@ -1131,11 +1131,9 @@ function renderPieCharts() {
                 family: 'Inter, system-ui, sans-serif'
               },
               display: (ctx) => {
-                // Só mostrar label se a fatia for maior que 3%
+                // Mostrar label se a fatia tiver valor maior que 0
                 const value = ctx.dataset.data[ctx.dataIndex];
-                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                const pct = total > 0 ? (value / total) * 100 : 0;
-                return pct > 3;
+                return value > 0;
               },
               formatter: (value, ctx) => {
                 const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
