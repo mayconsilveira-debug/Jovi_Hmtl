@@ -1177,7 +1177,7 @@ function forceChartResize() {
 }
 
 const pageConfig = {
-  dashboard: { title: 'Performance de Campanhas', eyebrow: 'Relatório Integrado', desc: 'Acompanhe investimento, receita, ROAS e conversão para as plataformas de advertising da JOVI.' },
+  dashboard: { title: 'Performance', eyebrow: 'Relatório Integrado', desc: 'Acompanhe investimento, receita, ROAS e conversão para as plataformas de advertising da JOVI.' },
   daily: { title: 'Acompanhamento Diário', eyebrow: 'Série Temporal', desc: 'Acompanhe o desempenho dia a dia com gráficos de série temporal.' },
   google: { title: 'Google Ads', eyebrow: 'Análise Isolada', desc: 'Dados consolidados apenas da plataforma Google Ads.' },
   meta: { title: 'Meta Ads', eyebrow: 'Análise Isolada', desc: 'Dados consolidados apenas da plataforma Meta Ads (Facebook, Instagram).' },

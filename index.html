@@ -45,7 +45,7 @@
         <button class="menu-toggle-btn" id="menuToggleBtn" type="button" title="Alternar menu">☰</button>
         <div class="topbar-title">
           <p class="eyebrow" id="pageEyebrow">Relatório Integrado</p>
-          <h1 id="pageTitle">Performance de Campanhas</h1>
+          <h1 id="pageTitle">Performance</h1>
         </div>
         <div class="topbar-actions">
           <div class="date-filter">
@@ -76,6 +76,13 @@
       <!-- PAGE 1: DASHBOARD -->
       <div class="page-content" data-page="dashboard">
         <section class="kpi-grid" id="kpiCards"></section>
+
+        <section class="insights-card">
+          <div class="insights-header">
+            <h3>💡 Insights</h3>
+          </div>
+          <ul id="insightsList"></ul>
+        </section>
 
         <section class="pizza-grid">
           <article class="pie-card">
@@ -147,12 +154,6 @@
           </div>
         </section>
 
-        <section class="insights-card">
-          <div class="insights-header">
-            <h3>💡 Insights</h3>
-          </div>
-          <ul id="insightsList"></ul>
-        </section>
       </div>
 
       <!-- PAGE 2: ACOMPANHAMENTO DIÁRIO -->
