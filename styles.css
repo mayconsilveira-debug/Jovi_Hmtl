@@ -556,6 +556,71 @@ tbody tr:hover td {
   font-size: 0.88rem;
 }
 
+/* ─── Drill-down Table ────────────────────────────────────────────── */
+.expand-icon {
+  display: inline-block;
+  width: 16px;
+  margin-right: 6px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.platform-row,
+.adset-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.platform-row:hover,
+.adset-row:hover {
+  background: rgba(65, 169, 255, 0.08) !important;
+}
+
+.platform-row.expanded {
+  background: rgba(65, 169, 255, 0.12) !important;
+  font-weight: 500;
+}
+
+.platform-row.expanded .expand-icon,
+.adset-row.expanded .expand-icon {
+  color: var(--primary);
+}
+
+.adset-row {
+  font-size: 0.78rem;
+}
+
+.ad-row {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.adset-row td:first-child,
+.ad-row td:first-child {
+  position: relative;
+}
+
+.adset-row td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(65, 169, 255, 0.3);
+}
+
+.ad-row td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(65, 169, 255, 0.15);
+}
+
 /* ─── Scrollbar ──────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

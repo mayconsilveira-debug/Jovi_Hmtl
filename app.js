@@ -35,8 +35,13 @@ const fieldMap = {
     'rede', 'rede_publicitaria', 'rede publicitária', 'account_name', 'account name', 'account_id', 'account id'
   ],
   campaign: [
-    'campanha', 'campaign', 'campaign_name', 'campaign name', 'nome_da_campanha', 'nome da campanha',
-    'ad_set_name', 'ad set name', 'ad_name', 'ad name', 'campaign_id', 'campaign id'
+    'campanha', 'campaign', 'campaign_name', 'campaign name', 'nome_da_campanha', 'nome da campanha', 'campaign_id', 'campaign id'
+  ],
+  adSet: [
+    'ad_set_name', 'ad set name', 'adset_name', 'adset name', 'adset', 'ad_set', 'ad set', 'group_name', 'group name'
+  ],
+  adName: [
+    'ad_name', 'ad name', 'adname', 'nome_anuncio', 'nome anuncio', 'anuncio', 'anúncio', 'ad', 'creative_name', 'creative name'
   ],
   impressions: ['impressoes', 'impressions', 'impression', 'imps', 'impressões'],
   clicks: ['cliques', 'clicks', 'clique'],
@@ -193,10 +198,16 @@ function normalizeRow(row) {
     return null;
   }
   
+  // Extract ad set and ad name
+  const adSet = String(extractField(normalized, fieldMap.adSet) || '').trim();
+  const adName = String(extractField(normalized, fieldMap.adName) || '').trim();
+  
   return {
     date: parsedDate,
     platform: platform,
     campaign: campaign,
+    adSet: adSet,
+    adName: adName,
     campaignType: campaignType,
     impressions: parseNumber(extractField(normalized, fieldMap.impressions)),
     clicks: parseNumber(extractField(normalized, fieldMap.clicks)),
@@ -546,6 +557,127 @@ function groupByPlatform(platform = 'all') {
     completeViewRate: totals.videoViews ? totals.completeViews / totals.videoViews : 0,
     averageFrequency: totals.frequencyCount ? totals.frequencySum / totals.frequencyCount : 0
   }));
+}
+
+function groupByPlatformWithDrilldown(platform = 'all') {
+  const filtered = getFilteredRows(platform);
+  
+  // Agrupar por plataforma -> adSet -> adName
+  const platformData = {};
+  
+  filtered.forEach((item) => {
+    const platformName = item.platform || 'Desconhecido';
+    const adSetName = item.adSet || 'Sem grupo';
+    const adName = item.adName || 'Sem anúncio';
+    
+    // Inicializar estrutura se não existir
+    if (!platformData[platformName]) {
+      platformData[platformName] = {
+        totals: { impressions: 0, clicks: 0, cost: 0, videoViews: 0, completeViews: 0, frequencySum: 0, frequencyCount: 0, higherReach: 0 },
+        adSets: {}
+      };
+    }
+    
+    if (!platformData[platformName].adSets[adSetName]) {
+      platformData[platformName].adSets[adSetName] = {
+        totals: { impressions: 0, clicks: 0, cost: 0, videoViews: 0, completeViews: 0, frequencySum: 0, frequencyCount: 0, higherReach: 0 },
+        ads: {}
+      };
+    }
+    
+    if (!platformData[platformName].adSets[adSetName].ads[adName]) {
+      platformData[platformName].adSets[adSetName].ads[adName] = { 
+        impressions: 0, clicks: 0, cost: 0, videoViews: 0, completeViews: 0, frequencySum: 0, frequencyCount: 0, higherReach: 0 
+      };
+    }
+    
+    // Agregar valores
+    const ad = platformData[platformName].adSets[adSetName].ads[adName];
+    ad.impressions += item.impressions;
+    ad.clicks += item.clicks;
+    ad.cost += item.cost;
+    ad.videoViews += item.videoViews;
+    ad.completeViews += item.completeViews;
+    ad.frequencySum += item.frequency;
+    ad.frequencyCount += item.frequency > 0 ? 1 : 0;
+    ad.higherReach += item.higherReach;
+    
+    // Agregar no adSet
+    const adSet = platformData[platformName].adSets[adSetName];
+    adSet.totals.impressions += item.impressions;
+    adSet.totals.clicks += item.clicks;
+    adSet.totals.cost += item.cost;
+    adSet.totals.videoViews += item.videoViews;
+    adSet.totals.completeViews += item.completeViews;
+    adSet.totals.frequencySum += item.frequency;
+    adSet.totals.frequencyCount += item.frequency > 0 ? 1 : 0;
+    adSet.totals.higherReach += item.higherReach;
+    
+    // Agregar na plataforma
+    const plat = platformData[platformName];
+    plat.totals.impressions += item.impressions;
+    plat.totals.clicks += item.clicks;
+    plat.totals.cost += item.cost;
+    plat.totals.videoViews += item.videoViews;
+    plat.totals.completeViews += item.completeViews;
+    plat.totals.frequencySum += item.frequency;
+    plat.totals.frequencyCount += item.frequency > 0 ? 1 : 0;
+    plat.totals.higherReach += item.higherReach;
+  });
+  
+  // Calcular métricas derivadas
+  return Object.entries(platformData).map(([platformName, platform]) => {
+    const platTotals = platform.totals;
+    const adSets = Object.entries(platform.adSets).map(([adSetName, adSet]) => {
+      const adSetTotals = adSet.totals;
+      const ads = Object.entries(adSet.ads).map(([adName, ad]) => ({
+        adName,
+        impressions: ad.impressions,
+        clicks: ad.clicks,
+        cost: ad.cost,
+        videoViews: ad.videoViews,
+        completeViews: ad.completeViews,
+        cpm: ad.impressions ? ad.cost / (ad.impressions / 1000) : 0,
+        cpv: ad.videoViews ? ad.cost / ad.videoViews : 0,
+        vtr: ad.impressions ? ad.videoViews / ad.impressions : 0,
+        completeViewRate: ad.videoViews ? ad.completeViews / ad.videoViews : 0,
+        averageFrequency: ad.frequencyCount ? ad.frequencySum / ad.frequencyCount : 0,
+        higherReach: ad.higherReach
+      }));
+      
+      return {
+        adSetName,
+        impressions: adSetTotals.impressions,
+        clicks: adSetTotals.clicks,
+        cost: adSetTotals.cost,
+        videoViews: adSetTotals.videoViews,
+        completeViews: adSetTotals.completeViews,
+        cpm: adSetTotals.impressions ? adSetTotals.cost / (adSetTotals.impressions / 1000) : 0,
+        cpv: adSetTotals.videoViews ? adSetTotals.cost / adSetTotals.videoViews : 0,
+        vtr: adSetTotals.impressions ? adSetTotals.videoViews / adSetTotals.impressions : 0,
+        completeViewRate: adSetTotals.videoViews ? adSetTotals.completeViews / adSetTotals.videoViews : 0,
+        averageFrequency: adSetTotals.frequencyCount ? adSetTotals.frequencySum / adSetTotals.frequencyCount : 0,
+        higherReach: adSetTotals.higherReach,
+        ads
+      };
+    });
+    
+    return {
+      platform: platformName,
+      impressions: platTotals.impressions,
+      clicks: platTotals.clicks,
+      cost: platTotals.cost,
+      videoViews: platTotals.videoViews,
+      completeViews: platTotals.completeViews,
+      cpm: platTotals.impressions ? platTotals.cost / (platTotals.impressions / 1000) : 0,
+      cpv: platTotals.videoViews ? platTotals.cost / platTotals.videoViews : 0,
+      vtr: platTotals.impressions ? platTotals.videoViews / platTotals.impressions : 0,
+      completeViewRate: platTotals.videoViews ? platTotals.completeViews / platTotals.videoViews : 0,
+      averageFrequency: platTotals.frequencyCount ? platTotals.frequencySum / platTotals.frequencyCount : 0,
+      higherReach: platTotals.higherReach,
+      adSets
+    };
+  });
 }
 
 function ensureCharts() {
@@ -1009,30 +1141,118 @@ function renderPieCharts() {
 }
 
 function renderChannelTable() {
-  const rows = groupByPlatform(activePlatform);
-  if (!rows.length) {
+  const data = groupByPlatformWithDrilldown(activePlatform);
+  if (!data.length) {
     campaignTable.innerHTML = '<tr><td colspan="12" class="empty-state">Nenhum dado disponível. Carregue um arquivo para visualizar o relatório.</td></tr>';
     return;
   }
 
-  campaignTable.innerHTML = rows
-    .map((item) => `
-      <tr>
-        <td>${item.platform}</td>
-        <td>${formatCurrency(item.cost)}</td>
-        <td>${item.impressions.toLocaleString('pt-BR')}</td>
-        <td>${formatCurrency(item.cpm)}</td>
-        <td>${item.clicks.toLocaleString('pt-BR')}</td>
-        <td>${item.videoViews.toLocaleString('pt-BR')}</td>
-        <td>${formatCurrency(item.cpv)}</td>
-        <td>${formatPercent(item.vtr)}</td>
-        <td>${item.completeViews.toLocaleString('pt-BR')}</td>
-        <td>${formatPercent(item.completeViewRate)}</td>
-        <td>${item.averageFrequency.toFixed(2)}</td>
-        <td>${item.higherReach.toLocaleString('pt-BR')}</td>
+  let html = '';
+  
+  data.forEach((platform, platformIndex) => {
+    // Linha principal do canal
+    html += `
+      <tr class="platform-row" data-platform="${platformIndex}">
+        <td><span class="expand-icon">▶</span> ${platform.platform}</td>
+        <td>${formatCurrency(platform.cost)}</td>
+        <td>${platform.impressions.toLocaleString('pt-BR')}</td>
+        <td>${formatCurrency(platform.cpm)}</td>
+        <td>${platform.clicks.toLocaleString('pt-BR')}</td>
+        <td>${platform.videoViews.toLocaleString('pt-BR')}</td>
+        <td>${formatCurrency(platform.cpv)}</td>
+        <td>${formatPercent(platform.vtr)}</td>
+        <td>${platform.completeViews.toLocaleString('pt-BR')}</td>
+        <td>${formatPercent(platform.completeViewRate)}</td>
+        <td>${platform.averageFrequency.toFixed(2)}</td>
+        <td>${platform.higherReach.toLocaleString('pt-BR')}</td>
       </tr>
-    `)
-    .join('');
+    `;
+    
+    // Linhas de adSets (inicialmente escondidas)
+    platform.adSets.forEach((adSet, adSetIndex) => {
+      html += `
+        <tr class="adset-row platform-${platformIndex}" data-platform="${platformIndex}" data-adset="${adSetIndex}" style="display: none; background: rgba(65, 169, 255, 0.05);">
+          <td style="padding-left: 30px;"><span class="expand-icon">▶</span> 📁 ${adSet.adSetName}</td>
+          <td>${formatCurrency(adSet.cost)}</td>
+          <td>${adSet.impressions.toLocaleString('pt-BR')}</td>
+          <td>${formatCurrency(adSet.cpm)}</td>
+          <td>${adSet.clicks.toLocaleString('pt-BR')}</td>
+          <td>${adSet.videoViews.toLocaleString('pt-BR')}</td>
+          <td>${formatCurrency(adSet.cpv)}</td>
+          <td>${formatPercent(adSet.vtr)}</td>
+          <td>${adSet.completeViews.toLocaleString('pt-BR')}</td>
+          <td>${formatPercent(adSet.completeViewRate)}</td>
+          <td>${adSet.averageFrequency.toFixed(2)}</td>
+          <td>${adSet.higherReach.toLocaleString('pt-BR')}</td>
+        </tr>
+      `;
+      
+      // Linhas de ads (inicialmente escondidas)
+      adSet.ads.forEach((ad) => {
+        html += `
+          <tr class="ad-row platform-${platformIndex} adset-${adSetIndex}" style="display: none; background: rgba(65, 169, 255, 0.02);">
+            <td style="padding-left: 60px;">📄 ${ad.adName}</td>
+            <td>${formatCurrency(ad.cost)}</td>
+            <td>${ad.impressions.toLocaleString('pt-BR')}</td>
+            <td>${formatCurrency(ad.cpm)}</td>
+            <td>${ad.clicks.toLocaleString('pt-BR')}</td>
+            <td>${ad.videoViews.toLocaleString('pt-BR')}</td>
+            <td>${formatCurrency(ad.cpv)}</td>
+            <td>${formatPercent(ad.vtr)}</td>
+            <td>${ad.completeViews.toLocaleString('pt-BR')}</td>
+            <td>${formatPercent(ad.completeViewRate)}</td>
+            <td>${ad.averageFrequency.toFixed(2)}</td>
+            <td>${ad.higherReach.toLocaleString('pt-BR')}</td>
+          </tr>
+        `;
+      });
+    });
+  });
+  
+  campaignTable.innerHTML = html;
+  
+  // Adicionar event listeners para expandir/colapsar
+  setTimeout(() => {
+    // Click nas linhas de plataforma
+    document.querySelectorAll('.platform-row').forEach(row => {
+      row.addEventListener('click', function() {
+        const platformIndex = this.dataset.platform;
+        const isExpanded = this.classList.toggle('expanded');
+        const icon = this.querySelector('.expand-icon');
+        icon.textContent = isExpanded ? '▼' : '▶';
+        
+        // Mostrar/esconder adSets
+        document.querySelectorAll(`.adset-row.platform-${platformIndex}`).forEach(adsetRow => {
+          adsetRow.style.display = isExpanded ? 'table-row' : 'none';
+          // Resetar estado expandido do adSet
+          adsetRow.classList.remove('expanded');
+          adsetRow.querySelector('.expand-icon').textContent = '▶';
+        });
+        
+        // Esconder todos os ads desta plataforma
+        document.querySelectorAll(`.ad-row.platform-${platformIndex}`).forEach(adRow => {
+          adRow.style.display = 'none';
+        });
+      });
+    });
+    
+    // Click nas linhas de adSet
+    document.querySelectorAll('.adset-row').forEach(row => {
+      row.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const platformIndex = this.dataset.platform;
+        const adSetIndex = this.dataset.adset;
+        const isExpanded = this.classList.toggle('expanded');
+        const icon = this.querySelector('.expand-icon');
+        icon.textContent = isExpanded ? '▼' : '▶';
+        
+        // Mostrar/esconder ads
+        document.querySelectorAll(`.ad-row.platform-${platformIndex}.adset-${adSetIndex}`).forEach(adRow => {
+          adRow.style.display = isExpanded ? 'table-row' : 'none';
+        });
+      });
+    });
+  }, 100);
 }
 
 function renderInsights() {
