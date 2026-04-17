@@ -1003,7 +1003,7 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
             datalabels: {
               display: true,
               anchor: 'end',
-              align: 'top',
+              align: 'end',
               offset: 4,
               color: barLabelColor,
               font: {
@@ -1031,7 +1031,8 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
               display: true,
               anchor: 'end',
               align: 'top',
-              offset: 4,
+              offset: 16,
+              clamp: false,
               color: lineLabelColor,
               font: {
                 size: 11,
