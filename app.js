@@ -17,6 +17,11 @@ const pageEyebrow = document.getElementById('pageEyebrow');
 const pageTitle = document.getElementById('pageTitle');
 const pageDesc = document.getElementById('pageDesc');
 
+// Registrar plugin ChartDataLabels se disponível
+if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
+  Chart.register(ChartDataLabels);
+}
+
 let rawData = [];
 let activePlatform = 'all';
 let activePage = 'dashboard';
@@ -1071,15 +1076,23 @@ function renderPieCharts() {
           },
           plugins: {
             legend: {
-              position: 'bottom',
-              labels: {
-                color: '#8fa8d4',
-                boxWidth: 10,
-                boxHeight: 10,
-                borderRadius: 3,
-                useBorderRadius: true,
-                padding: 14,
-                font: { size: 12, family: 'Inter, system-ui, sans-serif' }
+              display: false
+            },
+            datalabels: {
+              color: '#ffffff',
+              anchor: 'end',
+              align: 'end',
+              offset: 8,
+              font: {
+                size: 11,
+                weight: '500',
+                family: 'Inter, system-ui, sans-serif'
+              },
+              formatter: (value, ctx) => {
+                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                const formattedValue = title === 'Investimento' ? formatCurrency(value) : value.toLocaleString('pt-BR');
+                return `${ctx.chart.data.labels[ctx.dataIndex]}\n${formattedValue} (${pct}%)`;
               }
             },
             tooltip: {
