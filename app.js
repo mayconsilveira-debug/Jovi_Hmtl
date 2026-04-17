@@ -956,10 +956,13 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
     return;
   }
   
-  console.log('Dados recebidos:', dailyData);
-  console.log('Primeira data bruta:', dailyData[0]?.date);
-  console.log('Tipo da data:', typeof dailyData[0]?.date);
-  const labels = dailyData.map((d) => {
+  // Limitar aos 6 últimos dias para melhor visualização
+  const limitedData = dailyData.slice(-6);
+  
+  console.log('Dados recebidos:', limitedData);
+  console.log('Primeira data bruta:', limitedData[0]?.date);
+  console.log('Tipo da data:', typeof limitedData[0]?.date);
+  const labels = limitedData.map((d) => {
     const formatted = formatDateBR(d.date);
     console.log(`Formatando: ${d.date} -> ${formatted}`);
     return formatted;
@@ -1012,10 +1015,25 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
         maintainAspectRatio: true,
         aspectRatio: 2,
         interaction: { intersect: false },
-        plugins: { legend: { labels: { color: '#cbd4ef' } } },
+        plugins: { 
+          legend: { 
+            labels: { color: '#ffffff', font: { weight: '600' } } 
+          } 
+        },
         scales: {
-          y: { ticks: { color: '#8a9bc5' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-          y1: { position: 'right', ticks: { color: '#ff6b6b' }, grid: { drawOnChartArea: false } }
+          x: { 
+            ticks: { color: '#ffffff', font: { weight: '500' } },
+            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+          },
+          y: { 
+            ticks: { color: '#ffffff', font: { weight: '500' } }, 
+            grid: { color: 'rgba(255, 255, 255, 0.15)' } 
+          },
+          y1: { 
+            position: 'right', 
+            ticks: { color: '#ff9999', font: { weight: '500' } }, 
+            grid: { drawOnChartArea: false } 
+          }
         }
       }
       });
@@ -1025,16 +1043,16 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
     }
   };
   
-  const investChart = barChartConfig(`${page}InvestmentChart`, dailyData.map((d) => d.cost), [], 'Investimento', '');
+  const investChart = barChartConfig(`${page}InvestmentChart`, limitedData.map((d) => d.cost), [], 'Investimento', '');
   if (investChart) timeSeriesCharts.push(investChart);
   
-  const impChart = barChartConfig(`${page}ImpressionsCPMChart`, dailyData.map((d) => d.impressions), dailyData.map((d) => d.cpm), 'Impressões', 'CPM');
+  const impChart = barChartConfig(`${page}ImpressionsCPMChart`, limitedData.map((d) => d.impressions), limitedData.map((d) => d.cpm), 'Impressões', 'CPM');
   if (impChart) timeSeriesCharts.push(impChart);
   
-  const clickChart = barChartConfig(`${page}ClicksCPCChart`, dailyData.map((d) => d.clicks), dailyData.map((d) => d.cpc), 'Cliques', 'CPC');
+  const clickChart = barChartConfig(`${page}ClicksCPCChart`, limitedData.map((d) => d.clicks), limitedData.map((d) => d.cpc), 'Cliques', 'CPC');
   if (clickChart) timeSeriesCharts.push(clickChart);
   
-  const ctrChart = barChartConfig(`${page}CTRChart`, dailyData.map((d) => d.ctr * 100), [], 'CTR (%)', '');
+  const ctrChart = barChartConfig(`${page}CTRChart`, limitedData.map((d) => d.ctr * 100), [], 'CTR (%)', '');
   if (ctrChart) timeSeriesCharts.push(ctrChart);
 }
 
