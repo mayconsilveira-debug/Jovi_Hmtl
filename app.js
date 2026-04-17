@@ -1156,19 +1156,19 @@ function renderPieCharts() {
             datalabels: {
               color: isLightTheme ? '#1e293b' : '#ffffff',
               anchor: 'end',
-              align: 'top',
-              offset: 25,
+              align: 'end',
+              offset: 15,
               font: {
-                size: 9,
-                weight: '600',
+                size: 11,
+                weight: '500',
                 family: 'Inter, system-ui, sans-serif'
               },
               display: true,
+              textAlign: 'center',
               formatter: (value, ctx) => {
                 const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
-                const formattedValue = title === 'Investimento' ? formatCurrency(value) : value.toLocaleString('pt-BR');
-                return `${ctx.chart.data.labels[ctx.dataIndex]}\n${formattedValue} (${pct}%)`;
+                const pct = total > 0 ? ((value / total) * 100).toFixed(2) : '0.00';
+                return `${pct}%`;
               }
             },
             tooltip: {
