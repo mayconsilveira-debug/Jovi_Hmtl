@@ -1082,11 +1082,18 @@ function renderPieCharts() {
               color: '#ffffff',
               anchor: 'end',
               align: 'end',
-              offset: 8,
+              offset: 12,
               font: {
-                size: 11,
+                size: 10,
                 weight: '500',
                 family: 'Inter, system-ui, sans-serif'
+              },
+              display: (ctx) => {
+                // Só mostrar label se a fatia for maior que 3%
+                const value = ctx.dataset.data[ctx.dataIndex];
+                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                const pct = total > 0 ? (value / total) * 100 : 0;
+                return pct > 3;
               },
               formatter: (value, ctx) => {
                 const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
