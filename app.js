@@ -993,7 +993,20 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
             backgroundColor: 'rgba(65, 169, 255, 0.6)',
             borderWidth: 0,
             yAxisID: 'y',
-            order: 2
+            order: 2,
+            datalabels: {
+              display: true,
+              anchor: 'end',
+              align: 'top',
+              offset: 4,
+              color: '#000000',
+              font: {
+                size: 11,
+                weight: 'bold',
+                family: 'Inter, system-ui, sans-serif'
+              },
+              formatter: (value) => value.toFixed(2)
+            }
           },
           {
             label: lineLabel,
@@ -1005,8 +1018,22 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
             fill: false,
             yAxisID: 'y1',
             order: 1,
-            pointRadius: 0,
-            tension: 0.3
+            pointRadius: 3,
+            pointBackgroundColor: 'rgba(255, 107, 107, 1)',
+            tension: 0.3,
+            datalabels: {
+              display: true,
+              anchor: 'end',
+              align: 'top',
+              offset: 4,
+              color: '#ff6b6b',
+              font: {
+                size: 11,
+                weight: '500',
+                family: 'Inter, system-ui, sans-serif'
+              },
+              formatter: (value) => value.toFixed(2)
+            }
           }
         ]
       },
@@ -1018,21 +1045,6 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
         plugins: { 
           legend: { 
             labels: { color: '#ffffff', font: { weight: '600' } } 
-          },
-          datalabels: {
-            display: (ctx) => ctx.dataset.type !== 'line',
-            anchor: 'end',
-            align: 'top',
-            offset: 4,
-            color: '#ffffff',
-            font: {
-              size: 10,
-              weight: '600',
-              family: 'Inter, system-ui, sans-serif'
-            },
-            formatter: (value) => {
-              return value.toFixed(2);
-            }
           }
         },
         scales: {
