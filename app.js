@@ -981,6 +981,12 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
       return null;
     }
     
+    // Detectar tema atual para ajustar cores dos labels
+    const isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
+    const barLabelColor = isLightTheme ? '#000000' : '#ffffff';
+    const lineLabelColor = isLightTheme ? '#E05A5A' : '#ff9999';
+    const axisColor = isLightTheme ? '#888888' : '#ffffff';
+    
     try {
       return new Chart(ctx, {
       type: 'bar',
@@ -999,7 +1005,7 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
               anchor: 'end',
               align: 'top',
               offset: 4,
-              color: '#000000',
+              color: barLabelColor,
               font: {
                 size: 11,
                 weight: 'bold',
@@ -1026,7 +1032,7 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
               anchor: 'end',
               align: 'top',
               offset: 4,
-              color: '#ff6b6b',
+              color: lineLabelColor,
               font: {
                 size: 11,
                 weight: '500',
@@ -1042,6 +1048,11 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
         maintainAspectRatio: true,
         aspectRatio: 2,
         interaction: { intersect: false },
+        layout: {
+          padding: {
+            top: 30
+          }
+        },
         plugins: { 
           legend: { 
             display: false
@@ -1050,18 +1061,18 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
         scales: {
           x: { 
             ticks: { 
-              color: '#888888', 
+              color: axisColor, 
               font: { size: 11, weight: '400' } 
             },
             grid: { color: 'rgba(255, 255, 255, 0.1)' }
           },
           y: { 
-            ticks: { color: '#ffffff', font: { weight: '500' } }, 
+            ticks: { color: axisColor, font: { weight: '500' } }, 
             grid: { color: 'rgba(255, 255, 255, 0.15)' } 
           },
           y1: { 
             position: 'right', 
-            ticks: { color: '#ff9999', font: { weight: '500' } }, 
+            ticks: { color: lineLabelColor, font: { weight: '500' } }, 
             grid: { drawOnChartArea: false } 
           }
         }
