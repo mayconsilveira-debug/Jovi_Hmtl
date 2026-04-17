@@ -43,6 +43,13 @@ function toggleTheme() {
     document.documentElement.setAttribute('data-theme', 'light');
     localStorage.setItem('jovi-theme', 'light');
   }
+  
+  // Recriar gráficos para garantir renderização correta no novo tema
+  setTimeout(() => {
+    clearPieCharts();
+    renderPieCharts();
+    forceChartResize();
+  }, 100);
 }
 
 // Inicializar tema
@@ -1075,6 +1082,10 @@ function renderPieCharts() {
     const ctx = document.getElementById(elementId);
     if (!ctx) return null;
 
+    // Detectar tema atual para ajustar cores da borda
+    const isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
+    const borderColor = isLightTheme ? '#ffffff' : '#0c1428';
+
     try {
       return new Chart(ctx, {
         type: 'doughnut',
@@ -1086,8 +1097,8 @@ function renderPieCharts() {
               backgroundColor: ['#4d8cff', '#4dd7c4', '#a78bfa', '#fb923c'],
               hoverBackgroundColor: ['#6ba3ff', '#6fe4d5', '#b49dfc', '#fca86d'],
               borderWidth: 3,
-              borderColor: '#0c1428',
-              hoverBorderColor: '#0c1428',
+              borderColor: borderColor,
+              hoverBorderColor: borderColor,
               hoverOffset: 8,
               borderRadius: 5,
               spacing: 2
