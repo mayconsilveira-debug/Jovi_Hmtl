@@ -1018,7 +1018,22 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
         plugins: { 
           legend: { 
             labels: { color: '#ffffff', font: { weight: '600' } } 
-          } 
+          },
+          datalabels: {
+            display: (ctx) => ctx.dataset.type !== 'line',
+            anchor: 'end',
+            align: 'top',
+            offset: 4,
+            color: '#ffffff',
+            font: {
+              size: 10,
+              weight: '600',
+              family: 'Inter, system-ui, sans-serif'
+            },
+            formatter: (value) => {
+              return value.toFixed(2);
+            }
+          }
         },
         scales: {
           x: { 
