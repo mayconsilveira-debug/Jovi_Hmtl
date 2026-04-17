@@ -1044,12 +1044,24 @@ function renderPlatformTimeSeriesCharts(page, dailyData) {
         interaction: { intersect: false },
         plugins: { 
           legend: { 
-            labels: { color: '#ffffff', font: { weight: '600' } } 
+            display: true,
+            position: 'top',
+            align: 'center',
+            labels: { 
+              color: '#ffffff', 
+              font: { size: 12, weight: '500', family: 'Inter, system-ui, sans-serif' },
+              usePointStyle: true,
+              pointStyle: 'rect',
+              padding: 20
+            } 
           }
         },
         scales: {
           x: { 
-            ticks: { color: '#ffffff', font: { weight: '500' } },
+            ticks: { 
+              color: '#888888', 
+              font: { size: 11, weight: '400' } 
+            },
             grid: { color: 'rgba(255, 255, 255, 0.1)' }
           },
           y: { 
