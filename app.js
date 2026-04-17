@@ -1121,7 +1121,7 @@ function renderPieCharts() {
               display: false
             },
             datalabels: {
-              color: '#ffffff',
+              color: isLightTheme ? '#1e293b' : '#ffffff',
               anchor: 'end',
               align: 'end',
               offset: 12,
