@@ -1122,15 +1122,15 @@ function renderPieCharts() {
             },
             datalabels: {
               color: isLightTheme ? '#1e293b' : '#ffffff',
-              anchor: 'outside',
-              align: 'outside',
-              offset: 20,
+              anchor: 'end',
+              align: 'top',
+              offset: 25,
               font: {
                 size: 9,
                 weight: '600',
                 family: 'Inter, system-ui, sans-serif'
               },
-              display: true, // Sempre mostrar labels
+              display: true,
               formatter: (value, ctx) => {
                 const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                 const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
