@@ -16,6 +16,37 @@ const endDateInput = document.getElementById('endDate');
 const pageEyebrow = document.getElementById('pageEyebrow');
 const pageTitle = document.getElementById('pageTitle');
 const pageDesc = document.getElementById('pageDesc');
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+// ─── Theme Toggle ──────────────────────────────────────────────────────────
+function initTheme() {
+  // Verificar preferência salva ou preferência do sistema
+  const savedTheme = localStorage.getItem('jovi-theme');
+  const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+  
+  if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  } else if (prefersLight) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+  // Default é dark (sem atributo data-theme)
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  
+  if (newTheme === 'dark') {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('jovi-theme', 'dark');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+    localStorage.setItem('jovi-theme', 'light');
+  }
+}
+
+// Inicializar tema
+initTheme();
 
 // Registrar plugin ChartDataLabels se disponível
 if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
@@ -1584,6 +1615,9 @@ menuToggleBtn.addEventListener('click', () => {
   const isClosed = appShell.classList.toggle('sidebar-closed');
   menuToggleBtn.textContent = isClosed ? '☰' : '✕';
 });
+
+// ─── Theme toggle ────────────────────────────────────────────────────────────
+themeToggleBtn.addEventListener('click', toggleTheme);
 
 // ─── File upload ─────────────────────────────────────────────────────────────
 fileInput.addEventListener('change', (event) => {
