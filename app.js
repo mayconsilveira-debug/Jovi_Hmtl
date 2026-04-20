@@ -1765,14 +1765,12 @@ navButtons.forEach((button) => {
 });
 
 // ─── Campaign type filter ─────────────────────────────────────────────────────
-campaignButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    campaignButtons.forEach((btn) => btn.classList.remove('active'));
-    button.classList.add('active');
-    activeCampaign = button.dataset.campaign;
+if (campaignFilter) {
+  campaignFilter.addEventListener('change', (e) => {
+    activeCampaign = e.target.value;
     updateDashboard();
   });
-});
+}
 
 async function autoLoadFakeData() {
   // Map filename fragment -> canonical platform name to inject into rows

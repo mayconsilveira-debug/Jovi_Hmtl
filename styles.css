@@ -455,6 +455,11 @@ html:not([data-theme]) .theme-toggle-btn .theme-icon-light {
   outline: none;
 }
 
+.campaign-filter select option {
+  background: #1a2035;
+  color: #fff;
+}
+
 .campaign-filter select:hover,
 .campaign-filter select:focus {
   border-color: rgba(77,140,255,0.5);
