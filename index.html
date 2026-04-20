@@ -32,12 +32,6 @@
         <button class="platform-btn platform-page-btn" data-platform="Meta Ads" data-page="meta">🟣 Meta Ads</button>
         <button class="platform-btn platform-page-btn" data-platform="TikTok Ads" data-page="tiktok">⚫ TikTok Ads</button>
       </div>
-
-      <div class="panel-section">
-        <h3>Campanha</h3>
-        <button class="campaign-btn active" data-campaign="all">★ Todas</button>
-        <button class="campaign-btn" data-campaign="awareness">📈 Awareness</button>
-      </div>
     </aside>
 
     <main class="panel-main">
@@ -68,6 +62,13 @@
                 <input type="date" id="endDate" />
               </label>
             </div>
+          </div>
+          <div class="campaign-filter">
+            <span class="campaign-filter-label">Campanha</span>
+            <select id="campaignFilter">
+              <option value="all">Todas</option>
+              <option value="awareness">Awareness</option>
+            </select>
           </div>
           <label class="upload-button">
             <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" />

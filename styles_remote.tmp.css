@@ -1,4 +1,4 @@
-/* ─── Design Tokens ────────────────────────────────────────────── */
+﻿/* ÔöÇÔöÇÔöÇ Design Tokens ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 :root {
   --bg-base:       #070d1f;
   --bg-panel:      #0c1428;
@@ -23,7 +23,7 @@
   color-scheme: dark;
 }
 
-/* ─── Light Theme Tokens ───────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Light Theme Tokens ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 [data-theme="light"] {
   --bg-base:       #f5f7fa;
   --bg-panel:      #ffffff;
@@ -47,12 +47,12 @@
   color: var(--text-primary);
 }
 
-/* ─── Reset ────────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Reset ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; border: none; background: none; }
 
-/* ─── Body ─────────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Body ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 html, body { min-height: 100vh; }
 body {
   background: var(--bg-base);
@@ -63,13 +63,13 @@ body {
   overflow-x: hidden;
 }
 
-/* ─── App Shell ─────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ App Shell ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .app-shell {
   display: flex;
   min-height: 100vh;
 }
 
-/* ─── Sidebar ───────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Sidebar ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .panel-sidebar {
   width: var(--sidebar-w);
   min-width: var(--sidebar-w);
@@ -100,7 +100,7 @@ body {
   overflow: hidden;
 }
 
-/* ─── Brand ─────────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Brand ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .brand {
   display: flex;
   align-items: center;
@@ -133,7 +133,7 @@ body {
 .brand strong { font-size: 1rem; font-weight: 700; display: block; }
 .brand p { font-size: 0.78rem; color: var(--text-secondary); }
 
-/* ─── Sidebar Section Labels ────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Sidebar Section Labels ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .panel-section { display: flex; flex-direction: column; gap: 4px; }
 .panel-section + .panel-section { margin-top: 16px; }
 
@@ -146,7 +146,7 @@ body {
   padding: 8px 10px 4px;
 }
 
-/* ─── Sidebar Nav / Platform / Campaign Buttons ─────────────────── */
+/* ÔöÇÔöÇÔöÇ Sidebar Nav / Platform / Campaign Buttons ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .nav-btn,
 .platform-btn,
 .campaign-btn {
@@ -183,7 +183,7 @@ body {
   font-weight: 600;
 }
 
-/* ─── Insights ───────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Insights ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .panel-insights { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
 .panel-insights ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
 .panel-insights li {
@@ -194,7 +194,7 @@ body {
   background: rgba(255,255,255,0.03);
 }
 
-/* ─── Insights Card (Dashboard) ─────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Insights Card (Dashboard) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .insights-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -225,7 +225,7 @@ body {
   border: 1px solid var(--border);
 }
 
-/* ─── Main Panel ─────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Main Panel ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .panel-main {
   flex: 1 1 0;
   min-width: 0;
@@ -236,7 +236,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ─── Topbar ─────────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Topbar ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .topbar {
   display: flex;
   align-items: center;
@@ -289,7 +289,7 @@ body {
 }
 .description { display: none; } /* hidden in topbar to reduce clutter */
 
-/* ─── Topbar Actions ─────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Topbar Actions ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .topbar-actions {
   display: flex;
   align-items: center;
@@ -324,7 +324,7 @@ body {
   display: none;
 }
 
-/* Mostrar ícone apropriado baseado no tema */
+/* Mostrar ├¡cone apropriado baseado no tema */
 [data-theme="dark"] .theme-toggle-btn .theme-icon-light,
 :root:not([data-theme]) .theme-toggle-btn .theme-icon-light,
 html:not([data-theme]) .theme-toggle-btn .theme-icon-light {
@@ -422,56 +422,17 @@ html:not([data-theme]) .theme-toggle-btn .theme-icon-light {
   white-space: nowrap;
 }
 
-/* ─── Campaign Filter (Header) ───────────────────────────────────── */
-.campaign-filter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: var(--radius-md);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-}
-
-.campaign-filter-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  white-space: nowrap;
-}
-
-.campaign-filter select {
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.04);
-  color: var(--text-primary);
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: border-color 0.18s, background 0.18s;
-  outline: none;
-}
-
-.campaign-filter select:hover,
-.campaign-filter select:focus {
-  border-color: rgba(77,140,255,0.5);
-  background: rgba(255,255,255,0.07);
-}
-
-/* ─── Page Content ───────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Page Content ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .page-content {
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
-/* ─── KPI Grid ───────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ KPI Grid ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 14px;
 }
 
@@ -512,7 +473,7 @@ html:not([data-theme]) .theme-toggle-btn .theme-icon-light {
   display: block;
 }
 
-/* ─── Daily KPI Grid ─────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Daily KPI Grid ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .daily-kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -520,7 +481,7 @@ html:not([data-theme]) .theme-toggle-btn .theme-icon-light {
 }
 .daily-kpi-grid .kpi-card strong { font-size: 1.2rem; }
 
-/* ─── Charts Grid ────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Charts Grid ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
@@ -546,7 +507,7 @@ html:not([data-theme]) .theme-toggle-btn .theme-icon-light {
 }
 .chart-card canvas { flex: 1; }
 
-/* ─── Custom Legend ──────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Custom Legend ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .custom-legend {
   display: flex;
   align-items: center;
@@ -582,7 +543,7 @@ html:not([data-theme]) .theme-toggle-btn .theme-icon-light {
   font-weight: 500;
 }
 
-/* ─── Doughnut / Pie Grid ────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Doughnut / Pie Grid ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .pizza-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -622,7 +583,7 @@ html:not([data-theme]) .theme-toggle-btn .theme-icon-light {
   margin-top: 3px;
 }
 
-/* ─── Table Card ─────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Table Card ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .table-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -702,7 +663,7 @@ tbody tr:hover td {
   font-size: 0.88rem;
 }
 
-/* ─── Drill-down Table ────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Drill-down Table ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 .expand-icon {
   display: inline-block;
   width: 16px;
@@ -767,13 +728,13 @@ tbody tr:hover td {
   background: rgba(65, 169, 255, 0.15);
 }
 
-/* ─── Scrollbar ──────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Scrollbar ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 6px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
 
-/* ─── Responsive ─────────────────────────────────────────────────── */
+/* ÔöÇÔöÇÔöÇ Responsive ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ */
 @media (max-width: 1100px) {
   .charts-grid { grid-template-columns: 1fr; }
   .pizza-grid { grid-template-columns: repeat(2, 1fr); }

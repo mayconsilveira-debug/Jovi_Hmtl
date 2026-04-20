@@ -1,7 +1,7 @@
 const platformButtons = document.querySelectorAll('.platform-btn');
 const navButtons = document.querySelectorAll('.nav-btn');
 const platformPageButtons = document.querySelectorAll('.platform-page-btn');
-const campaignButtons = document.querySelectorAll('.campaign-btn');
+const campaignFilter = document.getElementById('campaignFilter');
 const kpiCards = document.getElementById('kpiCards');
 const campaignTable = document.getElementById('campaignTable');
 const insightsList = document.getElementById('insightsList');
@@ -1597,8 +1597,9 @@ function changePage(newPage) {
     // Reset campaign filter when changing pages
     if (newPage !== 'dashboard') {
       activeCampaign = 'all';
-      campaignButtons.forEach((btn) => btn.classList.remove('active'));
-      document.querySelector('[data-campaign="all"]')?.classList.add('active');
+      if (campaignFilter) {
+        campaignFilter.value = 'all';
+      }
     }
     
     // Render content for the page after a small delay to ensure DOM is ready
